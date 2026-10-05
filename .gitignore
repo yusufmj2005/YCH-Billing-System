@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+build/pyinstaller/
+build/work/
+build/version_info.txt
+build/version.tmp
+dist/
+installer_output/*
+!installer_output/BusinessPOS-Setup.exe
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.log
+.devdata/

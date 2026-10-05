@@ -1,0 +1,1 @@
+"""BusinessPOS desktop application package."""
