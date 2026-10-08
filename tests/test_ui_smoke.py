@@ -44,7 +44,7 @@ def test_all_pages_load(qapp, services, admin, make_product, sell, no_dialogs):
 
 
 def test_pos_cart_flow(qapp, services, admin, make_product, taxes, no_dialogs):
-    pid = make_product(stock="5", price="100", barcode="SCAN-1", tax_id=taxes["Test GST 12"])
+    make_product(stock="5", price="100", barcode="SCAN-1", tax_id=taxes["Test GST 12"])
     win = MainWindow(AppContext(services=services, user=admin))
     win.navigate("pos")
     pos = win.pages["pos"]

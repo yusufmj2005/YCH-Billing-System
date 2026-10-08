@@ -73,8 +73,14 @@ class Services:
 
 
 def build_services(paths: AppPaths, db: Database | None = None) -> Services:
+    owns_db = db is None
     db = db or Database(paths.database_file)
-    prepare_database(db, paths)
+    try:
+        prepare_database(db, paths)
+    except Exception:
+        if owns_db:
+            db.dispose()  # don't leave the file open when it is refused or fails to upgrade
+        raise
     settings = SettingsService(db, paths.attachments_dir)
     return Services(
         db=db, paths=paths, settings=settings, auth=AuthService(db, settings),

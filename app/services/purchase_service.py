@@ -7,7 +7,7 @@ Supplier payments are recorded as outgoing ``payments`` linked to the purchase.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
 

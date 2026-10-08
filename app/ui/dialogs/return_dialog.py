@@ -14,8 +14,7 @@ from app.services.errors import BusinessError, ValidationError
 from app.services.return_service import ReturnLineRequest, ReturnRequest
 from app.services.sales_service import PaymentRequest
 from app.ui import documents
-from app.ui.widgets.common import (button, confirm, handle_exception, label, show_error,
-                                   show_info)
+from app.ui.widgets.common import (button, confirm, handle_exception, label, show_error)
 from app.ui.widgets.forms import decimal_edit
 from app.utils.dates import fmt_dt
 from app.utils.money import ZERO, fmt_money, fmt_qty, money

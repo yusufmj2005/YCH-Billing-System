@@ -259,6 +259,14 @@ class TaxPage(QWizardPage):
             self.table.removeRow(r)
             self.rates.pop(r)
 
+    def validatePage(self) -> bool:
+        # A rate typed but not yet added must not be silently dropped.
+        if self.name.text().strip() or self.rate.text().strip():
+            before = len(self.rates)
+            self._add()
+            return len(self.rates) > before
+        return True
+
 
 class PaymentPage(QWizardPage):
     def __init__(self):

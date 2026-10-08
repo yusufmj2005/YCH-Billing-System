@@ -12,7 +12,7 @@ from decimal import Decimal
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (QAbstractItemView, QComboBox, QDialog, QFrame, QGridLayout,
-                               QHBoxLayout, QHeaderView, QLabel, QLineEdit, QSplitter,
+                               QHBoxLayout, QHeaderView, QLineEdit, QSplitter,
                                QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget)
 
 from app.config.constants import TAX_MODE_LABELS, Perm, TaxMode

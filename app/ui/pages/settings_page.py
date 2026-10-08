@@ -10,7 +10,7 @@ from app.config.constants import TAX_MODE_LABELS, Perm
 from app.reports.base import Col
 from app.ui.pages.base import Page
 from app.ui.styles.theme import C
-from app.ui.widgets.common import Card, button, label, show_info, ui_action
+from app.ui.widgets.common import Card, button, label, ui_action
 from app.ui.widgets.forms import Field, FormDialog, decimal_edit
 from app.ui.widgets.table import DataTable
 

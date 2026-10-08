@@ -1,0 +1,6 @@
+# Lint for real defects (undefined names, unused imports/variables, syntax errors).
+line-length = 100
+target-version = "py311"
+
+[lint]
+select = ["F", "E9"]
