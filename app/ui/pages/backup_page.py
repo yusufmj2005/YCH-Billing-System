@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QInputDialog, QMessageBox
+from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QInputDialog, QLineEdit, QMessageBox
+
+from app.backup.crypto import PasswordRequired, WrongPassword
 
 from app.config.constants import Perm
 from app.reports.base import Col
@@ -49,12 +51,11 @@ class BackupPage(Page):
             ctx.services.paths.backups_dir)))
         self.root.addLayout(head)
         self.table = DataTable([Col("name", "File"), Col("kind", "Type"),
-                                Col("modified", "Created", "datetime"),
+                                Col("enc", "Encrypted"), Col("modified", "Created", "datetime"),
                                 Col("size_txt", "Size")], stretch="name")
         self.root.addWidget(self.table, 1)
-        self.root.addWidget(label("Automatic daily backups are configured in Settings › "
-                                  "Security & backup. Backups are not encrypted; store them "
-                                  "securely.", "Faint"))
+        self.root.addWidget(label("Automatic backups and the backup password are set in "
+                                  "Settings › Security & backup.", "Faint"))
 
     def on_show(self):
         self.load()
@@ -64,6 +65,7 @@ class BackupPage(Page):
         rows = self.ctx.services.backup.list_backups()
         for r in rows:
             r["size_txt"] = f"{r['size'] / 1024:,.0f} KB"
+            r["enc"] = "Yes" if r["encrypted"] else "No"
         self.table.set_rows(rows)
 
     @ui_action
@@ -84,7 +86,7 @@ class BackupPage(Page):
     def restore_file(self):
         path, _ = QFileDialog.getOpenFileName(self, "Choose backup file",
                                               str(self.ctx.services.paths.backups_dir),
-                                              "BusinessPOS backups (*.db)")
+                                              "BusinessPOS backups (*.db *.db.enc)")
         if path:
             self.restore({"path": path, "name": Path(path).name})
 
@@ -93,7 +95,20 @@ class BackupPage(Page):
         if not row:
             show_info(self, "Select a backup in the list first.")
             return
-        info = self.ctx.services.backup.validate_backup(Path(row["path"]))
+        password = None
+        while True:
+            try:
+                info = self.ctx.services.backup.validate_backup(Path(row["path"]), password)
+                break
+            except (PasswordRequired, WrongPassword) as exc:
+                prompt = (f"{exc}\n\nEnter the backup password for {row['name']}:"
+                          if isinstance(exc, WrongPassword) and password else
+                          f"{row['name']} is protected with a backup password.\n\n"
+                          "Enter the backup password:")
+                password, ok = QInputDialog.getText(self, "Backup password", prompt,
+                                                    QLineEdit.Password)
+                if not ok:
+                    return
         c = info["counts"]
         msg = (f"Backup: {row['name']}\nBusiness: {info['business_name'] or '—'}\n"
                f"Contains {c['sales']} sales, {c['products']} products, {c['customers']} "
@@ -107,7 +122,7 @@ class BackupPage(Page):
         if text.strip() != "RESTORE":
             show_info(self, "Restore cancelled (confirmation text did not match).")
             return
-        safety = self.ctx.services.backup.restore(self.ctx.user, Path(row["path"]))
+        safety = self.ctx.services.backup.restore(self.ctx.user, Path(row["path"]), password)
         QMessageBox.information(
             self, "Restore complete",
             f"The data was restored from {row['name']}.\n\nSafety backup of the previous data: "

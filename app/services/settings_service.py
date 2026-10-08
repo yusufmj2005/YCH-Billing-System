@@ -29,6 +29,8 @@ def format_doc_no(prefix: str, number: int, padding: int) -> str:
 def get_settings(session: Session) -> dict:
     data = dict(DEFAULT_SETTINGS)
     for row in session.scalars(select(Setting)):
+        if row.key.startswith("secret_"):       # e.g. the backup key: never exposed
+            continue
         try:
             data[row.key] = json.loads(row.value)
         except ValueError:

@@ -3,27 +3,40 @@
 Backups use SQLite's online backup API, which produces a consistent copy
 even while the application is running. Before any restore a *safety backup*
 of the current database is written so the restore itself can be undone.
+
+With a backup password set, backups are written encrypted (``*.db.enc``,
+see ``app/backup/crypto.py``). The derived key is kept in the live database so
+automatic backups need no typing; a backup can be restored on any PC with
+the password.
 """
 from __future__ import annotations
 
+import base64
+import hashlib
 import json
 import logging
 import os
+import shutil
 import sqlite3
+import uuid
 from datetime import date, datetime
 from pathlib import Path
 from typing import Callable
 
 from app.config.constants import DB_IDENTIFIER, Perm, SCHEMA_VERSION
 from app.config.settings import AppPaths
+from app.backup import crypto
 from app.database.database import Database
+from app.models import Setting
 from app.security.auth import CurrentUser, require
+from app.security.passwords import validate_password_strength
 from app.services import audit_service
 from app.services.errors import BusinessError, ValidationError
 
 log = logging.getLogger(__name__)
 
-BACKUP_GLOB = "BusinessPOS-*.db"
+BACKUP_GLOBS = ("BusinessPOS-*.db", "BusinessPOS-*.db.enc")
+_SALT_KEY, _KEY_KEY = "secret_backup_salt", "secret_backup_key"
 
 
 def _ro_uri(path: Path) -> str:
@@ -60,40 +73,66 @@ class BackupService:
         except OSError as exc:
             raise BusinessError("The backup folder could not be created. "
                                 "Please choose another location.") from exc
+        enc = self._stored_key()
+        ext = ".db.enc" if enc else ".db"
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-        target = dest_dir / f"BusinessPOS-{kind}-{stamp}.db"
+        target = dest_dir / f"BusinessPOS-{kind}-{stamp}{ext}"
         n = 1
         while target.exists():
-            target = dest_dir / f"BusinessPOS-{kind}-{stamp}-{n}.db"
+            target = dest_dir / f"BusinessPOS-{kind}-{stamp}-{n}{ext}"
             n += 1
-        tmp = target.with_suffix(".tmp")
+        tmp = dest_dir / f".{target.name}.tmp"
+        plain = self._scratch_file() if enc else tmp
         try:
-            _copy_db(self.db.db_file, tmp)
-            self.validate_backup(tmp)
+            _copy_db(self.db.db_file, plain)
+            self._validate_plain(plain)
+            if enc:
+                salt, key = enc
+                data = plain.read_bytes()
+                tmp.write_bytes(crypto.encrypt(data, key, salt))
+                if crypto.decrypt(tmp.read_bytes(), key=key) != data:   # read back and verify
+                    raise OSError("encrypted backup did not verify")
             os.replace(tmp, target)
         except ValidationError:
             tmp.unlink(missing_ok=True)
             raise
-        except (OSError, sqlite3.Error) as exc:
+        except (OSError, sqlite3.Error, BusinessError) as exc:
             tmp.unlink(missing_ok=True)
             log.exception("Backup failed")
             raise BusinessError("The backup could not be written. Check that the location is "
                                 "available and has free space.") from exc
+        finally:
+            if enc:
+                plain.unlink(missing_ok=True)
         log.info("Backup created (%s): %s", kind, target)
         try:
             with self.db.session() as s:
                 audit_service.record(s, actor, "BACKUP_CREATED", "database", None,
-                                     {"kind": kind, "file": target.name},
+                                     {"kind": kind, "file": target.name,
+                                      "encrypted": bool(enc)},
                                      username="system" if actor is None else None)
         except Exception:  # audit failure must not hide a successful backup
             log.exception("Could not audit backup")
         return target
 
     # ---- validate ------------------------------------------------------------------
-    def validate_backup(self, path: Path) -> dict:
+    def validate_backup(self, path: Path, password: str | None = None) -> dict:
+        """Check a backup and summarise its contents. Encrypted backups made with
+        this PC's current password open automatically; others need ``password``
+        (raises crypto.PasswordRequired / crypto.WrongPassword)."""
         path = Path(path)
         if not path.is_file():
             raise ValidationError("The selected backup file does not exist.")
+        if not crypto.is_encrypted(path):
+            return {**self._validate_plain(path), "encrypted": False}
+        plain = self._decrypt_to_scratch(path, password)
+        try:
+            info = self._validate_plain(plain)
+        finally:
+            plain.unlink(missing_ok=True)
+        return {**info, "encrypted": True, "size": path.stat().st_size}
+
+    def _validate_plain(self, path: Path) -> dict:
         try:
             con = sqlite3.connect(_ro_uri(path), uri=True)
         except sqlite3.Error:
@@ -127,30 +166,44 @@ class BackupService:
             con.close()
 
     # ---- restore -------------------------------------------------------------------
-    def restore(self, actor: CurrentUser, path: Path) -> Path:
+    def restore(self, actor: CurrentUser, path: Path, password: str | None = None) -> Path:
         """Replace the live database with ``path``. Returns the safety backup."""
         require(actor, Perm.RESTORE_DATABASE)
         path = Path(path)
-        info = self.validate_backup(path)
+        if not path.is_file():
+            raise ValidationError("The selected backup file does not exist.")
         if path.resolve() == self.db.db_file.resolve():
             raise ValidationError("You cannot restore the live database onto itself.")
-        safety = self.create_backup(actor, kind="pre-restore")
-        self.db.dispose()
+        encrypted = crypto.is_encrypted(path)
+        source = self._decrypt_to_scratch(path, password) if encrypted else path
+        own_key = self._stored_key()      # the backup password belongs to this installation
+        rollback = self._scratch_file()
         try:
-            _copy_db(path, self.db.db_file)
-            self.db.reopen()
-            if self._reinitialize:
-                self._reinitialize(self.db)
-        except Exception:
-            log.exception("Restore failed; rolling back to safety backup %s", safety)
+            info = self._validate_plain(source)
+            safety = self.create_backup(actor, kind="pre-restore")
+            _copy_db(self.db.db_file, rollback)          # plain copy for an automatic undo
             self.db.dispose()
-            _copy_db(safety, self.db.db_file)
-            self.db.reopen()
-            raise BusinessError("The restore failed and the previous data was kept. "
-                                "See the log file for details.") from None
+            try:
+                _copy_db(source, self.db.db_file)
+                self.db.reopen()
+                if self._reinitialize:
+                    self._reinitialize(self.db)
+                self._write_key(own_key)        # keep this PC's backup password setting
+            except Exception:
+                log.exception("Restore failed; putting the previous data back")
+                self.db.dispose()
+                _copy_db(rollback, self.db.db_file)
+                self.db.reopen()
+                raise BusinessError("The restore failed and the previous data was kept. "
+                                    "See the log file for details.") from None
+        finally:
+            rollback.unlink(missing_ok=True)
+            if encrypted:
+                source.unlink(missing_ok=True)
         with self.db.session() as s:
             audit_service.record(s, None, "DATABASE_RESTORED", "database", None,
                                  {"from_file": path.name, "safety_backup": safety.name,
+                                  "encrypted": encrypted,
                                   "restored_by": actor.username,
                                   "backup_schema": info["schema_version"]},
                                  username=actor.username)
@@ -162,11 +215,13 @@ class BackupService:
         folder = Path(folder) if folder else self.paths.backups_dir
         if not folder.is_dir():
             return []
+        files = {p for pattern in BACKUP_GLOBS for p in folder.glob(pattern)}
         out = []
-        for p in sorted(folder.glob(BACKUP_GLOB), key=lambda x: x.stat().st_mtime, reverse=True):
+        for p in sorted(files, key=lambda x: x.stat().st_mtime, reverse=True):
             st = p.stat()
-            kind = p.stem.split("-")[1] if p.stem.count("-") >= 2 else ""
+            kind = p.name.split("-")[1] if p.name.count("-") >= 2 else ""
             out.append({"path": str(p), "name": p.name, "kind": kind, "size": st.st_size,
+                        "encrypted": p.name.endswith(".enc"),
                         "modified": datetime.fromtimestamp(st.st_mtime).replace(microsecond=0)})
         return out
 
@@ -197,10 +252,15 @@ class BackupService:
         if not dest_dir.is_dir():
             raise BusinessError(f"The backup copy folder {dest_dir} is not available.")
         target = dest_dir / Path(backup).name
-        tmp = target.with_suffix(".tmp")
+        tmp = dest_dir / f".{target.name}.tmp"
         try:
-            _copy_db(Path(backup), tmp)
-            self.validate_backup(tmp)
+            if crypto.is_encrypted(Path(backup)):
+                shutil.copyfile(backup, tmp)                 # already verified when created
+                if _sha256(tmp) != _sha256(Path(backup)):
+                    raise OSError("copy did not verify")
+            else:
+                _copy_db(Path(backup), tmp)
+                self._validate_plain(tmp)
             os.replace(tmp, target)
         except (OSError, sqlite3.Error, ValidationError) as exc:
             tmp.unlink(missing_ok=True)
@@ -248,3 +308,69 @@ class BackupService:
                     f"to:\n{folder}\n\nConnect the drive (or check the folder) and use "
                     f"Backup & Restore to make a copy, or change the folder in "
                     f"Settings \u203a Security & backup.")
+
+    # ---- backup password -------------------------------------------------------------
+    def encryption_enabled(self) -> bool:
+        return self._stored_key() is not None
+
+    def set_backup_password(self, actor: CurrentUser, password: str, confirm: str) -> None:
+        """Encrypt all future backups. Existing backup files are not changed."""
+        require(actor, Perm.MANAGE_SETTINGS, Perm.BACKUP_DATABASE)
+        if password != confirm:
+            raise ValidationError("The passwords do not match.")
+        validate_password_strength(password)
+        self._write_key(crypto.new_key(password), actor.id)
+        with self.db.session() as s:
+            audit_service.record(s, actor, "BACKUP_PASSWORD_SET", "settings", None, {})
+
+    def _write_key(self, key: tuple[bytes, bytes] | None, actor_id: int | None = None) -> None:
+        with self.db.session() as s:
+            for k, raw in ((_SALT_KEY, key and key[0]), (_KEY_KEY, key and key[1])):
+                row = s.get(Setting, k)
+                if raw is None:
+                    if row is not None:
+                        s.delete(row)
+                    continue
+                value = json.dumps(base64.b64encode(raw).decode("ascii"))
+                if row is None:
+                    s.add(Setting(key=k, value=value, updated_by=actor_id))
+                else:
+                    row.value, row.updated_by = value, actor_id
+
+    def remove_backup_password(self, actor: CurrentUser) -> None:
+        """Future backups are written unencrypted; encrypted files keep their password."""
+        require(actor, Perm.MANAGE_SETTINGS, Perm.BACKUP_DATABASE)
+        self._write_key(None)
+        with self.db.session() as s:
+            audit_service.record(s, actor, "BACKUP_PASSWORD_REMOVED", "settings", None, {})
+
+    def _stored_key(self) -> tuple[bytes, bytes] | None:
+        with self.db.session() as s:
+            salt, key = s.get(Setting, _SALT_KEY), s.get(Setting, _KEY_KEY)
+            if salt is None or key is None:
+                return None
+            return (base64.b64decode(json.loads(salt.value)),
+                    base64.b64decode(json.loads(key.value)))
+
+    def _scratch_file(self) -> Path:
+        """A private temporary file next to the live database (never in a copy folder)."""
+        return self.db.db_file.parent / f".bpos-{uuid.uuid4().hex}.tmp"
+
+    def _decrypt_to_scratch(self, path: Path, password: str | None) -> Path:
+        blob = Path(path).read_bytes()
+        stored = self._stored_key()
+        if stored and crypto.salt_of(blob) == stored[0]:
+            plain = crypto.decrypt(blob, key=stored[1])
+        else:
+            plain = crypto.decrypt(blob, password=password)
+        out = self._scratch_file()
+        out.write_bytes(plain)
+        return out
+
+
+def _sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()

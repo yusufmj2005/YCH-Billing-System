@@ -10,7 +10,7 @@ from app.config.constants import TAX_MODE_LABELS, Perm
 from app.reports.base import Col
 from app.ui.pages.base import Page
 from app.ui.styles.theme import C
-from app.ui.widgets.common import Card, button, label, ui_action
+from app.ui.widgets.common import Card, button, confirm, label, ui_action
 from app.ui.widgets.forms import Field, FormDialog, decimal_edit
 from app.ui.widgets.table import DataTable
 
@@ -220,6 +220,17 @@ class SettingsPage(Page):
         f.addRow("", label("Each automatic backup is also copied here, so your data survives if "
                            "this computer fails or is stolen. You are warned at start-up if the "
                            "folder is not available.", "Faint", wrap=True))
+        self.enc_status = label("", "SectionTitle")
+        enc_row = QHBoxLayout()
+        enc_row.addWidget(self.enc_status, 1)
+        enc_row.addWidget(button("Set backup password…", None, self.set_backup_password))
+        self.enc_remove = button("Remove", "ghost", self.remove_backup_password)
+        enc_row.addWidget(self.enc_remove)
+        f.addRow("Backup password", enc_row)
+        f.addRow("", label("Encrypts every backup, including copies on USB or cloud folders. "
+                           "Restoring on another computer asks for this password. If the "
+                           "password is forgotten, encrypted backups CANNOT be restored, so "
+                           "write it down and keep it safe.", "Faint", wrap=True))
         f.addRow("", label("Users, roles and permissions are managed on the Users & Permissions "
                            "page.", "Faint"))
         if ctx.can(Perm.MANAGE_USERS) or ctx.can(Perm.MANAGE_ROLES):
@@ -267,6 +278,9 @@ class SettingsPage(Page):
         self.upi_id.setText(s.get("upi_id", ""))
         self.upi_name.setText(s.get("upi_payee_name", "") or "")
         self.copy_folder.setText(s.get("backup_copy_folder", ""))
+        enc = self.ctx.services.backup.encryption_enabled()
+        self.enc_status.setText("On: backups are encrypted" if enc else "Off")
+        self.enc_remove.setVisible(enc)
         self.load_tax()
         self.load_methods()
 
@@ -340,6 +354,30 @@ class SettingsPage(Page):
                     "backup_keep_count": self.keep.value(),
                     "backup_copy_folder": self.copy_folder.text()},
                    "Saved (auto sign-out applies from the next sign-in)")
+
+    @ui_action
+    def set_backup_password(self):
+        from app.ui.widgets.forms import Field, FormDialog
+        svc = self.ctx.services.backup
+        dlg = FormDialog(self, "Backup password", [
+            Field("password", "New backup password", "password", required=True),
+            Field("confirm", "Confirm password", "password", required=True)],
+            on_submit=lambda d: svc.set_backup_password(self.ctx.user, d["password"],
+                                                        d["confirm"]),
+            intro="From now on every backup is encrypted with this password. Backups made "
+                  "earlier keep their current protection. Keep the password safe: it cannot "
+                  "be recovered.", submit_text="Set password")
+        if dlg.exec():
+            self.ctx.toast("Backup password set; new backups are encrypted")
+            self.on_show()
+
+    @ui_action
+    def remove_backup_password(self):
+        if confirm(self, "Stop encrypting new backups?\n\nBackups already encrypted still "
+                         "need the password to restore.", danger=True, yes_text="Remove"):
+            self.ctx.services.backup.remove_backup_password(self.ctx.user)
+            self.ctx.toast("Backup password removed")
+            self.on_show()
 
     @ui_action
     def save_upi(self):

@@ -14,6 +14,9 @@ rights those licences grant.
 | bcrypt | 5.0.0 | Apache License 2.0 | https://github.com/pyca/bcrypt |
 | ReportLab (open-source toolkit) | 4.5.1 | BSD-style (ReportLab Open Source License) | https://www.reportlab.com |
 | Pillow | 12.3.0 | MIT-CMU (HPND) | https://python-pillow.org |
+| cryptography | 50.0.2 | Apache License 2.0 or BSD-3-Clause | https://cryptography.io |
+| cffi | 2.1.1 | MIT-0 | https://cffi.readthedocs.io |
+| pycparser | 3.0 | BSD-3-Clause | https://github.com/eliben/pycparser |
 | charset-normalizer | 3.5.2 | MIT | https://github.com/jawah/charset_normalizer |
 | typing_extensions | 4.16.0 | PSF License | https://github.com/python/typing_extensions |
 | PyInstaller bootloader | 6.22.3 | GPL v2 with the bootloader exception (allows use in programs under any licence) | https://pyinstaller.org |

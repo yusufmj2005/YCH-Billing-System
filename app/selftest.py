@@ -57,6 +57,15 @@ def run() -> int:
             lines.append("pdf + barcode: ok")
             svc.backup.create_backup(admin)
             lines.append("backup: ok")
+            # encryption library bundled and working (AES-GCM + scrypt)
+            svc.backup.set_backup_password(admin, "SelfTest-Backup-1", "SelfTest-Backup-1")
+            enc = svc.backup.create_backup(admin)
+            assert enc.name.endswith(".db.enc"), enc
+            assert svc.backup.validate_backup(enc, "SelfTest-Backup-1")["encrypted"]
+            lines.append("encrypted backup: ok")
+            from app.payments.upi import qr_matrix, upi_uri
+            assert len(qr_matrix(upi_uri("selftest@upi", "Self test", "1"))) >= 21
+            lines.append("upi qr: ok")
 
             from PySide6.QtCore import QSize
             from PySide6.QtGui import QGuiApplication
