@@ -1,5 +1,6 @@
 """Edge cases and regression tests found during exploratory testing."""
 from decimal import Decimal
+from decimal import Decimal as D
 
 import pytest
 
@@ -275,3 +276,38 @@ def test_second_folder_must_exist_when_saved(services, admin, tmp_path):
     with pytest.raises(ValidationError, match="does not exist"):
         services.settings.update(admin, {"backup_copy_folder": str(tmp_path / "missing")})
     services.settings.update(admin, {"backup_copy_folder": ""})      # clearing is allowed
+
+
+def test_final_return_never_refunds_below_zero(services, admin, make_product, sell, methods):
+    services.settings.update(admin, {"round_off_total": True})
+    big = make_product(price="100.10", stock="5")
+    tiny = make_product(price="0.30", stock="5")
+    res = sell([(big, 1), (tiny, 1)])                      # 100.40 -> paid 100
+    items = services.sales.get_sale(admin, res["sale_id"])["items"]
+    r1 = _return(services, admin, methods, res["sale_id"], items[0]["id"], 1)
+    assert r1["refund_total"] == D("100.10")
+    line = [ReturnLineRequest(items[1]["id"], D(1))]
+    prev = services.returns.preview(admin, res["sale_id"], line)
+    assert prev["refund_total"] == 0 and prev["round_off"] == D("-0.30")
+    services.returns.create_return(admin, ReturnRequest(res["sale_id"], line, "edge", []))
+    assert services.inventory.verify_ledger() == []
+
+
+def test_restore_old_version_backup_is_upgraded(services, admin, make_product, sell):
+    import sqlite3
+    pid = make_product(stock="5")
+    sell([(pid, 1)])
+    backup = services.backup.create_backup(admin)
+    con = sqlite3.connect(backup)                          # turn it into a v1 backup
+    con.execute("ALTER TABLE returns DROP COLUMN round_off")
+    con.execute("UPDATE app_meta SET value='1' WHERE key='schema_version'")
+    con.commit()
+    con.close()
+    assert services.backup.validate_backup(backup)["schema_version"] == 1
+    sell([(pid, 1)])
+    services.backup.restore(admin, backup)
+    from app.database.migrations import read_meta
+    assert read_meta(services.db)["schema_version"] == "2"
+    cu = services.auth.login("admin", ADMIN_PASSWORD)
+    assert services.sales.list_sales(cu)[1] == 1           # the later sale is gone
+    assert stock_of(services, cu, pid) == D("4")            # stock as at the backup

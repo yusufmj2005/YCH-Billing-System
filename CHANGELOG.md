@@ -34,7 +34,7 @@ first start, after an automatic `pre-upgrade-v1` backup (schema v1 → v2).
 - **Automated Windows build (GitHub Actions)**: tests, build, packaged self-test and
   a real install → self-test → uninstall of the produced installer on a clean
   machine. Releases are built from pinned dependency versions.
-- **Tests:** 87 → 160. They now include end-to-end reconciliation of every report,
+- **Tests:** 87 → 162. They now include end-to-end reconciliation of every report,
   the setup wizard and sign-in screens, and the business rules for every module.
 - **Documentation:** `docs/GO-LIVE-CHECKLIST.md` and `docs/ACCEPTANCE-TEST.md`.
 

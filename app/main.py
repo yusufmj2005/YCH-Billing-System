@@ -129,6 +129,13 @@ def _install_excepthook(app: QApplication):
     sys.excepthook = hook
 
 
+def _backup_failed_text(exc: Exception) -> str:
+    from app.services.errors import BusinessError
+    reason = str(exc) if isinstance(exc, BusinessError) else "See the log file for details."
+    return ("The automatic backup could not be made. " + reason + "\n\nYour data is safe, but "
+            "please make a backup from Backup & Restore and check the free disk space.")
+
+
 def main() -> int:
     if "--self-test" in sys.argv:
         from app.selftest import run
@@ -182,8 +189,9 @@ def main() -> int:
             warning = services.backup.run_automatic(services.settings.get_all())
             if warning:
                 QMessageBox.warning(None, f"{APP_NAME} - backup copy", warning)
-    except Exception:
+    except Exception as exc:
         log.exception("Automatic backup failed")
+        QMessageBox.warning(None, f"{APP_NAME} - backup", _backup_failed_text(exc))
 
     controller = Controller(app, services)
     controller.start()
@@ -193,8 +201,9 @@ def main() -> int:
             warning = services.backup.run_automatic(services.settings.get_all(), on_exit=True)
             if warning:
                 QMessageBox.warning(None, f"{APP_NAME} - backup copy", warning)
-    except Exception:
+    except Exception as exc:
         log.exception("Backup on exit failed")
+        QMessageBox.warning(None, f"{APP_NAME} - backup", _backup_failed_text(exc))
     services.db.dispose()
     log.info("Exited with code %s", code)
     return code

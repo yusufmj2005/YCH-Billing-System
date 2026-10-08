@@ -120,8 +120,10 @@ class ReturnService:
             (prev.get(it.id, (ZERO,))[0] or ZERO) + this_return.get(it.id, ZERO) == it.quantity
             for it in sale.items)
         if completes_sale and sale.round_off:
-            totals["round_off"] = sale.round_off
-            totals["refund_total"] += sale.round_off
+            # never let a negative round-off turn the final refund below zero
+            r_off = max(sale.round_off, -totals["refund_total"])
+            totals["round_off"] = r_off
+            totals["refund_total"] += r_off
         return {"sale": sale, "lines": out, **totals}
 
     def create_return(self, actor: CurrentUser, req: ReturnRequest) -> dict:
