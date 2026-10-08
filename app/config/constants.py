@@ -8,7 +8,7 @@ categories, payment methods).
 from __future__ import annotations
 
 APP_NAME = "BusinessPOS"
-APP_VERSION = "1.1.1"
+APP_VERSION = "1.2.0"
 APP_ID = "BusinessPOS"  # used for data folder / mutex names
 APP_MUTEX_NAME = "BusinessPOS_SingleInstance_Mutex"
 
@@ -183,6 +183,7 @@ class PaymentKind:
     BANK_TRANSFER = "BANK_TRANSFER"
     OTHER = "OTHER"
     CUSTOM = "CUSTOM"
+    RAZORPAY = "RAZORPAY"      # collected and confirmed through Razorpay (online)
 
 
 # (code, display name, allows reference id, requires description)

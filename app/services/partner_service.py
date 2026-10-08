@@ -137,6 +137,14 @@ class PartnerService:
             audit_service.record(s, actor, action, "customer", obj.id, {"name": obj.name})
             return obj.id
 
+    def get_customer(self, actor: CurrentUser, customer_id: int) -> dict:
+        require_any(actor, Perm.VIEW_CUSTOMERS, Perm.CREATE_SALE)
+        with self.db.session() as s:
+            c = s.get(Customer, customer_id)
+            if c is None:
+                raise NotFound("Customer not found.")
+            return _row(c)
+
     def customer_history(self, actor: CurrentUser, customer_id: int) -> dict:
         require(actor, Perm.VIEW_CUSTOMERS)
         with self.db.session() as s:

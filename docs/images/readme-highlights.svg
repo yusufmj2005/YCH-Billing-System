@@ -34,8 +34,8 @@
 <text x="134.0" y="189.0" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Fast billing</text>
 <text font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#cbd5e1" fill-opacity="0.92">
 <tspan x="70.0" y="240">Scan or search, discounts, split</tspan>
-<tspan x="70.0" y="263">payments and a UPI QR with the exact</tspan>
-<tspan x="70.0" y="286">amount for any UPI app.</tspan>
+<tspan x="70.0" y="263">payments, UPI QR and Razorpay (UPI,</tspan>
+<tspan x="70.0" y="286">cards) confirmed automatically.</tspan>
 </text>
 <g filter="url(#shadow)"><rect x="422.7" y="132.0" width="354.7" height="185" rx="18" fill="url(#glass)"/></g>
 <rect x="423.2" y="132.5" width="353.7" height="184" rx="18" fill="none" stroke="url(#edge)"/>

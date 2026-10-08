@@ -74,8 +74,8 @@ PANELS = {
              "Fast GST billing, accurate stock, returns that add up and reports that agree. "
              "Fully offline on one PC."),
             ("purple", "target", "Currently",
-             "v1.1.1 is out: UPI QR payments, GSTR-1 reports, encrypted backups and "
-             "lost-receipt returns."),
+             "v1.2.0 is out: Razorpay payments confirmed automatically, UPI QR, GSTR-1 "
+             "reports and encrypted backups."),
         ],
     },
     "readme-highlights.svg": {
@@ -83,8 +83,8 @@ PANELS = {
         "title": "Highlights",
         "cards": [
             ("teal", "scan", "Fast billing",
-             "Scan or search, discounts, split payments and a UPI QR with the exact amount "
-             "for any UPI app."),
+             "Scan or search, discounts, split payments, UPI QR and Razorpay (UPI, cards) "
+             "confirmed automatically."),
             ("blue", "receipt", "GST-ready invoices",
              "CGST + SGST or IGST, HSN codes, A4 and 80 mm receipts, plus GSTR-1 reports "
              "for your accountant."),

@@ -10,7 +10,7 @@ from app.config.constants import TAX_MODE_LABELS, Perm
 from app.reports.base import Col
 from app.ui.pages.base import Page
 from app.ui.styles.theme import C
-from app.ui.widgets.common import Card, button, confirm, label, ui_action
+from app.ui.widgets.common import Card, button, confirm, handle_exception, label, ui_action
 from app.ui.widgets.forms import Field, FormDialog, decimal_edit
 from app.ui.widgets.table import DataTable
 
@@ -181,6 +181,30 @@ class SettingsPage(Page):
                                 "Faint", wrap=True), 1)
         upi_row.addWidget(button("Save UPI", "primary", self.save_upi))
         upi.addRow("", upi_row)
+        upi.addRow(label("Razorpay (online payments, confirmed automatically)",
+                         "SectionTitle"))
+        self.rzp_status = label("", "Muted", wrap=True)
+        upi.addRow("Status", self.rzp_status)
+        self.rzp_key = QLineEdit()
+        self.rzp_key.setPlaceholderText("rzp_live_…  (or rzp_test_… to try it first)")
+        self.rzp_key.setMaxLength(60)
+        self.rzp_secret = QLineEdit()
+        self.rzp_secret.setEchoMode(QLineEdit.Password)
+        self.rzp_secret.setMaxLength(80)
+        self.rzp_secret.setPlaceholderText("Key Secret (shown once by Razorpay when the key is "
+                                           "generated)")
+        upi.addRow("Key ID", self.rzp_key)
+        upi.addRow("Key Secret", self.rzp_secret)
+        rzp_row = QHBoxLayout()
+        rzp_row.addWidget(label("Razorpay Dashboard › Account & Settings › API keys. The secret "
+                                "is locked to this Windows account. Razorpay charges its own "
+                                "fees.", "Faint", wrap=True), 1)
+        self.rzp_check = button("Check payments…", None, self.check_razorpay)
+        self.rzp_disconnect = button("Disconnect", "danger", self.disconnect_razorpay)
+        rzp_row.addWidget(self.rzp_check)
+        rzp_row.addWidget(self.rzp_disconnect)
+        rzp_row.addWidget(button("Connect", "primary", self.connect_razorpay))
+        upi.addRow("", rzp_row)
         pl.addLayout(upi)
         bar = QHBoxLayout()
         bar.addStretch(1)
@@ -277,6 +301,7 @@ class SettingsPage(Page):
         self.exit_backup.setChecked(bool(s.get("backup_on_exit", True)))
         self.upi_id.setText(s.get("upi_id", ""))
         self.upi_name.setText(s.get("upi_payee_name", "") or "")
+        self._show_razorpay()
         self.copy_folder.setText(s.get("backup_copy_folder", ""))
         enc = self.ctx.services.backup.encryption_enabled()
         self.enc_status.setText("On: backups are encrypted" if enc else "Off")
@@ -383,6 +408,57 @@ class SettingsPage(Page):
     def save_upi(self):
         self._save({"upi_id": self.upi_id.text(), "upi_payee_name": self.upi_name.text()},
                    "UPI settings saved")
+
+    def _show_razorpay(self):
+        st = self.ctx.services.razorpay.status()
+        if st["connected"]:
+            mode = "TEST mode (no real money)" if st["mode"] == "test" else "Live"
+            text = f"Connected: {mode}, key {st['key_id']}. Checkout shows a Razorpay button."
+        elif st["needs_secret"]:
+            text = (f"Key {st['key_id']} is saved but its secret can't be read on this "
+                    "computer / Windows account. Enter the Key Secret again and Connect.")
+        else:
+            text = "Not connected."
+        self.rzp_status.setText(text)
+        if st["key_id"] and not self.rzp_key.text():
+            self.rzp_key.setText(st["key_id"])
+        self.rzp_disconnect.setVisible(bool(st["key_id"]))
+        self.rzp_check.setVisible(st["connected"])
+
+    def connect_razorpay(self):
+        from app.ui.dialogs.razorpay_dialog import busy
+        try:
+            with busy():
+                st = self.ctx.services.razorpay.connect(self.ctx.user, self.rzp_key.text(),
+                                                         self.rzp_secret.text())
+        except Exception as exc:  # noqa: BLE001
+            handle_exception(self, exc)
+            return
+        self.rzp_secret.clear()
+        self.ctx.reload_settings()
+        self.ctx.toast("Razorpay connected" + (" in TEST mode" if st["mode"] == "test" else ""))
+        self.on_show()
+
+    def disconnect_razorpay(self):
+        if not confirm(self, "Disconnect Razorpay? The saved keys are removed from this "
+                             "computer and the Razorpay button disappears from checkout. Past "
+                             "sales are not changed.", danger=True, yes_text="Disconnect"):
+            return
+        try:
+            self.ctx.services.razorpay.disconnect(self.ctx.user)
+        except Exception as exc:  # noqa: BLE001
+            handle_exception(self, exc)
+            return
+        self.rzp_key.clear()
+        self.rzp_secret.clear()
+        self.ctx.toast("Razorpay disconnected")
+        self.on_show()
+
+    def check_razorpay(self):
+        from app.ui.dialogs.razorpay_check_dialog import RazorpayCheckDialog
+        dlg = RazorpayCheckDialog(self, self.ctx)
+        if dlg.load():
+            dlg.exec()
 
     def _pick_copy_folder(self):
         folder = QFileDialog.getExistingDirectory(self, "Choose the second backup folder",

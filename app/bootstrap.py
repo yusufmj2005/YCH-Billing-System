@@ -22,6 +22,7 @@ from app.services.partner_service import PartnerService
 from app.services.payment_method_service import PaymentMethodService
 from app.services.product_import import ProductImportService
 from app.services.purchase_service import PurchaseService
+from app.services.razorpay_service import RazorpayService
 from app.services.report_service import ReportService
 from app.services.return_service import ReturnService
 from app.services.sales_service import SalesService
@@ -72,6 +73,7 @@ class Services:
     reports: ReportService
     dashboard: DashboardService
     backup: BackupService
+    razorpay: RazorpayService
 
 
 def build_services(paths: AppPaths, db: Database | None = None) -> Services:
@@ -94,4 +96,5 @@ def build_services(paths: AppPaths, db: Database | None = None) -> Services:
         purchases=PurchaseService(db), expenses=ExpenseService(db), staff=StaffService(db),
         reports=ReportService(db), dashboard=DashboardService(db),
         backup=BackupService(db, paths, reinitialize=lambda d: prepare_database(d, paths)),
+        razorpay=RazorpayService(db),
     )

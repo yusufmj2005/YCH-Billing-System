@@ -19,7 +19,7 @@ covers that.
 |---|---|
 | Tester | |
 | Date | |
-| BusinessPOS version (shown on the sign-in screen) | 1.1.1 |
+| BusinessPOS version (shown on the sign-in screen) | 1.2.0 |
 | PC / printer / scanner | |
 
 ---
@@ -111,6 +111,18 @@ covers that.
 | J5 | Settings › Security & backup › **Set backup password…**, then Backup & Restore › Back up now | The new backup ends in `.db.enc` and the list shows Encrypted = Yes. | |
 | J6 | On another PC (or after removing the password), restore that `.db.enc` file | It asks for the backup password; a wrong one is refused, the right one restores. | |
 | J7 | Returns › **Find invoice…**: search by a product sold earlier, or the customer's phone | The invoice appears; choosing it loads it for the return. | |
+
+## K. Razorpay (only if you use it; see [RAZORPAY.md](RAZORPAY.md))
+
+| # | Do this | Expected result | ✓ |
+|---|---|---|---|
+| K1 | Settings › Payments › Razorpay: enter a wrong Key Secret → Connect | Refused: "Razorpay did not accept the API Key ID / Key Secret". Nothing is saved. | |
+| K2 | Enter the correct **test** keys → Connect | Status *Connected: TEST mode*; a **Razorpay** method appears in the list and at checkout. | |
+| K3 | Sell an item, checkout, click **Razorpay** | A Razorpay UPI QR opens for the exact amount, with the TEST MODE banner. (If it says QR codes are not enabled, continue with K4.) | |
+| K4 | Click **Payment link**, type your mobile, **Create link**; pay it with a Razorpay test card | Within a few seconds: *Paid ✓*, the payment shows as e.g. "Card via Razorpay" with a `pay_…` ID. Complete the sale. | |
+| K5 | Start another Razorpay payment and click **Cancel** | The window closes, no payment is added; in the Dashboard the QR/link shows closed/cancelled. | |
+| K6 | Sales › **Check Razorpay payments…** for today | The K4 payment shows "Invoice …"; the summary says *Everything matches ✓*. | |
+| K7 | Void the K4 test sale | Sale voided. Disconnect the test keys, connect the **live** keys, and repeat K3 with a real ₹1 UPI payment from your phone. | |
 
 ## I. Update and uninstall
 

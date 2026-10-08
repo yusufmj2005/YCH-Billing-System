@@ -1,5 +1,38 @@
 # Changelog
 
+## 1.2.0
+
+Razorpay payments. No database changes; installing over 1.1.x or 1.0.x keeps all data.
+
+### Added
+- **Razorpay at checkout** (optional; Settings › Payments › Razorpay). The **Razorpay**
+  button shows a Razorpay UPI QR for the amount due, or a **payment link** (UPI, cards,
+  net banking, wallets) as a QR code and optionally by SMS. BusinessPOS checks with
+  Razorpay every few seconds and records the payment, with its `pay_…` ID, only once
+  Razorpay confirms it is captured for the exact amount. Split payments work.
+- Safe by design: cancelling closes the QR or link at Razorpay, and a payment made at that
+  last moment is still recorded. A Razorpay payment can't be recorded without a confirmed
+  ID, and one payment can't pay for two invoices. Leaving checkout or removing a received
+  Razorpay payment asks first. Internet drops while waiting are retried.
+- **Already paid? Enter payment ID**: recover a payment whose window was closed. It is
+  checked with Razorpay (captured, exact amount, not used before).
+- **Check Razorpay payments** (Sales, and Settings › Payments): a day's Razorpay payments
+  next to the invoices that recorded them. Unrecorded money and unknown IDs are flagged.
+- Test mode (`rzp_test_` keys) is clearly marked at checkout.
+- Returns: choosing Razorpay as the refund method reminds you to refund in the Razorpay
+  Dashboard and record the `rfnd_…` ID.
+- Guide: docs/RAZORPAY.md; acceptance test section K.
+
+### Security
+- The Key Secret is verified with Razorpay before saving and stored encrypted with Windows
+  DPAPI (this Windows user on this PC only). It is never shown, logged or exported, and
+  only *Manage settings* users can connect or disconnect Razorpay.
+
+### Changed
+- New dependency: `certifi` (Mozilla's CA certificates) so HTTPS to Razorpay works even on
+  a freshly installed Windows. Listed in THIRD-PARTY-NOTICES.md. The packaged self-test now
+  also checks secret protection, the HTTPS certificates and the Razorpay service.
+
 ## 1.1.1
 
 Faster UPI at checkout. No database changes; installing over 1.1.0 or 1.0.x keeps all data.

@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (QCheckBox, QComboBox, QDialog, QFormLayout, QHBox
                                QHeaderView, QLineEdit, QPlainTextEdit, QTableWidget,
                                QTableWidgetItem, QVBoxLayout, QWidget)
 
-from app.config.constants import SaleStatus
+from app.config.constants import PaymentKind, SaleStatus
 from app.printing.printer import print_pdf
 from app.services.errors import BusinessError, ValidationError
 from app.services.return_service import ReturnLineRequest, ReturnRequest
@@ -96,6 +96,14 @@ class ReturnDialog(QDialog):
         amt.setMaximumWidth(140)
         ref = QLineEdit()
         ref.setPlaceholderText("Reference ID (optional)")
+        kinds = {pm["id"]: pm["kind"] for pm in self.methods}
+
+        def hint(_i=0):
+            rzp = kinds.get(combo.currentData()) == PaymentKind.RAZORPAY
+            ref.setPlaceholderText("Refund it in the Razorpay Dashboard first, then enter the "
+                                   "refund ID (rfnd_…)" if rzp else "Reference ID (optional)")
+        combo.currentIndexChanged.connect(hint)
+        hint()
         row.addWidget(combo)
         row.addWidget(amt)
         row.addWidget(ref, 1)

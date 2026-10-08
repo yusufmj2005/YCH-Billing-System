@@ -5,7 +5,7 @@ also contains the open-source components below. Each one is licensed to you
 under its own licence, and nothing in the BusinessPOS licence restricts the
 rights those licences grant.
 
-| Component | Version in 1.1.1 | Licence | Project |
+| Component | Version in 1.2.0 | Licence | Project |
 |---|---|---|---|
 | Python runtime | 3.12 | Python Software Foundation License | https://www.python.org |
 | Qt for Python (PySide6, shiboken6) and the Qt libraries | 6.11.2 | GNU LGPL v3 | https://www.qt.io/qt-for-python |
@@ -17,6 +17,7 @@ rights those licences grant.
 | cryptography | 50.0.2 | Apache License 2.0 or BSD-3-Clause | https://cryptography.io |
 | cffi | 2.1.1 | MIT-0 | https://cffi.readthedocs.io |
 | pycparser | 3.0 | BSD-3-Clause | https://github.com/eliben/pycparser |
+| certifi (Mozilla CA certificate bundle) | 2026.7.22 | Mozilla Public License 2.0 | https://github.com/certifi/python-certifi |
 | charset-normalizer | 3.5.2 | MIT | https://github.com/jawah/charset_normalizer |
 | typing_extensions | 4.16.0 | PSF License | https://github.com/python/typing_extensions |
 | PyInstaller bootloader | 6.22.3 | GPL v2 with the bootloader exception (allows use in programs under any licence) | https://pyinstaller.org |

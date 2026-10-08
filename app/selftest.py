@@ -66,6 +66,22 @@ def run() -> int:
             from app.payments.upi import qr_matrix, upi_uri
             assert len(qr_matrix(upi_uri("selftest@upi", "Self test", "1"))) >= 21
             lines.append("upi qr: ok")
+            # Razorpay: secret protection (Windows DPAPI), HTTPS stack, client + service
+            from app.security import secret_store
+            assert secret_store.unprotect(secret_store.protect("SelfTestSecret1")) \
+                == "SelfTestSecret1"
+            from app.payments.razorpay import tls_context
+            assert tls_context().cert_store_stats()["x509_ca"] > 100     # certifi bundled
+            import app.ui.dialogs.razorpay_check_dialog  # noqa: F401
+            import app.ui.dialogs.razorpay_dialog  # noqa: F401
+            import json as _json
+            svc.razorpay.transport = lambda m, u, h, b, t: (200, _json.dumps(
+                {"entity": "collection", "items": []}).encode())
+            assert svc.razorpay.connect(admin, "rzp_test_SelfTest0001",
+                                        "SelfTestSecret0001")["connected"]
+            assert svc.razorpay.method()["is_active"]
+            svc.razorpay.disconnect(admin)
+            lines.append("razorpay: ok")
 
             from PySide6.QtCore import QSize
             from PySide6.QtGui import QGuiApplication

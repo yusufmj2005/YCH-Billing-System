@@ -13,7 +13,8 @@ from app.services.errors import BusinessError, ValidationError
 from app.services.pricing import CartResult
 from app.services.sales_service import PaymentRequest, SaleRequest
 from app.ui import documents
-from app.ui.widgets.common import button, handle_exception, icon_button, label, show_error
+from app.ui.widgets.common import (button, confirm, handle_exception, icon_button, label,
+                                   show_error)
 from app.ui.widgets.forms import Field, FormDialog, decimal_edit
 from app.utils.money import ZERO, fmt_money, money
 
@@ -196,6 +197,9 @@ class CheckoutDialog(QDialog):
         self.upi_btn = button("Show UPI QR", "primary", self._show_upi_qr)
         self.upi_btn.hide()
         add_row.addWidget(self.upi_btn)
+        self.rzp_btn = button("Collect with Razorpay", "primary", self._collect_razorpay)
+        self.rzp_btn.hide()
+        add_row.addWidget(self.rzp_btn)
         add_row.addWidget(button("Add payment", None, self._add_payment))
         lay.addLayout(add_row)
 
@@ -241,7 +245,9 @@ class CheckoutDialog(QDialog):
         pm = self._method()
         if pm is None:
             return
-        allows = pm["allows_reference"]
+        is_rzp = pm["kind"] == PaymentKind.RAZORPAY
+        allows = pm["allows_reference"] and not is_rzp      # Razorpay fills in the pay_… ID
+        self.rzp_btn.setVisible(is_rzp)
         self.reference.setVisible(allows)
         self.lbl_ref.setVisible(allows)
         req = pm["requires_description"]
@@ -279,9 +285,14 @@ class CheckoutDialog(QDialog):
             self.change_lbl.setText("")
 
     def _method_clicked(self, _i: int) -> None:
-        """Choosing UPI opens the QR for the amount due straight away."""
+        """Choosing UPI or Razorpay opens the QR for the amount due straight away."""
         pm = self._method()
-        if pm is None or pm["kind"] != PaymentKind.UPI or self._remaining() <= 0:
+        if pm is None or self._remaining() <= 0:
+            return
+        if pm["kind"] == PaymentKind.RAZORPAY:
+            self._collect_razorpay()
+            return
+        if pm["kind"] != PaymentKind.UPI:
             return
         if not self.ctx.settings.get("upi_id"):
             if (not self.ctx.can(Perm.MANAGE_SETTINGS) or self.ctx.upi_setup_declined
@@ -330,11 +341,62 @@ class CheckoutDialog(QDialog):
         if dlg.exec() and self._add_payment():
             self.complete_btn.setFocus()
 
+    def _collect_razorpay(self) -> bool:
+        """Collect the amount through Razorpay; record it once Razorpay confirms it."""
+        from app.ui.dialogs.razorpay_dialog import RazorpayDialog
+        pm = self._method()
+        try:
+            amt = money(Decimal(self.amount.text() or "0"))
+        except Exception:  # noqa: BLE001
+            show_error(self, "Enter a valid amount.")
+            return False
+        if amt <= 0 or amt > self._remaining():
+            show_error(self, f"Enter an amount up to the remaining balance "
+                             f"({self.ctx.money(self._remaining())}).")
+            return False
+        phone = customer = ""
+        if self.req.customer_id:
+            try:
+                c = self.ctx.services.partners.get_customer(self.ctx.user, self.req.customer_id)
+                phone, customer = c.get("phone") or "", c.get("name") or ""
+            except Exception:  # noqa: BLE001 - optional convenience only
+                pass
+        try:
+            dlg = RazorpayDialog(self, self.ctx, amt, phone=phone, customer=customer,
+                                 note=f"{self.ctx.settings.get('business_name') or 'Shop'} bill")
+        except BusinessError as exc:
+            show_error(self, str(exc))
+            return False
+        if not dlg.exec() or dlg.paid is None:
+            return False
+        res = dlg.paid
+        self.payments.append({"method": pm, "amount": res.amount, "reference": res.payment_id,
+                              "description": res.description})
+        self._refresh()
+        self.amount.setText(f"{self._remaining():.2f}")
+        self.complete_btn.setFocus()
+        return True
+
+    def _gateway_payments(self) -> list[dict]:
+        return [p for p in self.payments if p["method"]["kind"] == PaymentKind.RAZORPAY]
+
+    def reject(self) -> None:
+        paid = self._gateway_payments()
+        if paid and not confirm(
+                self, "Money has already been received through Razorpay ("
+                + ", ".join(p["reference"] for p in paid) + "). If you leave checkout the sale "
+                "is NOT saved and you must refund the customer from the Razorpay Dashboard.\n\n"
+                "Leave checkout anyway?", title="Razorpay payment received", danger=True):
+            return
+        super().reject()
+
     def _add_payment(self) -> bool:
         pm = self._method()
         if pm is None:
             show_error(self, "Select a payment method.")
             return False
+        if pm["kind"] == PaymentKind.RAZORPAY:
+            return self._collect_razorpay()
         try:
             amt = money(Decimal(self.amount.text() or "0"))
         except Exception:  # noqa: BLE001
@@ -365,6 +427,12 @@ class CheckoutDialog(QDialog):
 
     def _remove_payment(self, row: int) -> None:
         if 0 <= row < len(self.payments):
+            p = self.payments[row]
+            if p["method"]["kind"] == PaymentKind.RAZORPAY and not confirm(
+                    self, f"Razorpay payment {p['reference']} has already been received. "
+                          "Removing it means refunding the customer from the Razorpay "
+                          "Dashboard.\n\nRemove it?", danger=True):
+                return
             self.payments.pop(row)
             self._refresh()
             self.amount.setText(f"{self._remaining():.2f}")
@@ -404,7 +472,7 @@ class CheckoutDialog(QDialog):
         try:
             self.sale = self.ctx.services.sales.create_sale(self.ctx.user, self.req)
         except Exception as exc:  # noqa: BLE001
-            self.payments.clear()
+            self.payments = self._gateway_payments()     # money already received: keep it
             self._refresh()
             self.amount.setText(f"{self._remaining():.2f}")
             handle_exception(self, exc)

@@ -47,7 +47,9 @@ class PaymentMethodService:
                     raise NotFound("Payment method not found.")
                 action = "PAYMENT_METHOD_UPDATED"
             m.name = name
-            if m.kind != PaymentKind.CASH:
+            if m.kind == PaymentKind.RAZORPAY:
+                m.allows_reference = True          # holds the Razorpay payment ID
+            elif m.kind != PaymentKind.CASH:
                 m.allows_reference = bool(data.get("allows_reference", m.allows_reference))
             m.requires_description = bool(data.get("requires_description", m.requires_description)) \
                 if m.kind in (PaymentKind.OTHER, PaymentKind.CUSTOM) else m.requires_description

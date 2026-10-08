@@ -16,7 +16,8 @@ from decimal import Decimal
 from sqlalchemy import exists, func, or_, select
 from sqlalchemy.orm import Session
 
-from app.config.constants import MovementType, PaymentDirection, Perm, SaleStatus, TaxMode
+from app.config.constants import (MovementType, PaymentDirection, PaymentKind, Perm, SaleStatus,
+                                  TaxMode)
 from app.database.database import Database
 from app.models import (Customer, Payment, PaymentMethod, Product, ReturnItem, Sale, SaleItem,
                         SaleReturn)
@@ -111,6 +112,27 @@ def validate_payments(s: Session, payments: list[PaymentRequest], expected_total
     return out
 
 
+def check_gateway_payments(s: Session, payments) -> None:
+    """A Razorpay payment must carry the Razorpay payment ID it was confirmed with, and one
+    payment can pay for only one sale."""
+    from app.payments.razorpay import PAYMENT_ID_RE
+    seen: set[str] = set()
+    for method, _amount, reference, _desc in payments:
+        if method.kind != PaymentKind.RAZORPAY:
+            continue
+        if not reference or not PAYMENT_ID_RE.match(reference):
+            raise ValidationError("Razorpay payments are confirmed by Razorpay: use the "
+                                  "Razorpay button at checkout (it records the pay_… ID).")
+        used = s.scalar(select(Sale.invoice_no).join(Payment, Payment.sale_id == Sale.id)
+                        .where(Payment.reference == reference,
+                               Payment.direction == PaymentDirection.IN,
+                               Payment.is_void.is_(False)))
+        if reference in seen or used:
+            raise ValidationError(f"Razorpay payment {reference} is already recorded"
+                                  + (f" on invoice {used}." if used else "."))
+        seen.add(reference)
+
+
 class SalesService:
     def __init__(self, db: Database):
         self.db = db
@@ -176,6 +198,7 @@ class SalesService:
                             f"{fmt_qty(p.current_stock)} {p.unit}, requested: {fmt_qty(q)}.")
 
             payments = validate_payments(s, req.payments, result.grand_total)
+            check_gateway_payments(s, payments)
 
             customer = None
             if req.customer_id:

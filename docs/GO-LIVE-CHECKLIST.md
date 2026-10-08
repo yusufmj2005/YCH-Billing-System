@@ -54,6 +54,8 @@ After setup, open **Settings** and review:
 - [ ] **Inventory:** low-stock threshold and units. Keep "allow negative stock" **off**.
 - [ ] **Payments:** enter your shop's **UPI ID** so checkout can show a UPI QR code
   with the exact amount (test it with a ₹1 payment).
+- [ ] **Razorpay (optional):** connect your **live** API keys in Settings › Payments ›
+  Razorpay and make a ₹1 test payment. Follow [RAZORPAY.md](RAZORPAY.md) (test mode first).
 - [ ] **Security & backup:** see step 6.
 
 ## 4. Users and roles

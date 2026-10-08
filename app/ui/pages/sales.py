@@ -68,10 +68,20 @@ class SalesPage(Page):
         actions.addWidget(button("Print", None, self.print_selected))
         actions.addWidget(button("Open PDF", None, self.open_selected))
         actions.addWidget(button("Save PDF as…", None, self.save_selected))
+        self.rzp_btn = button("Check Razorpay payments…", None, self.check_razorpay)
+        actions.addWidget(self.rzp_btn)
         self.root.addLayout(actions)
 
     def on_show(self) -> None:
+        self.rzp_btn.setVisible(self.ctx.can(Perm.VIEW_REPORTS)
+                                and self.ctx.services.razorpay.status()["connected"])
         self.load(0)
+
+    def check_razorpay(self) -> None:
+        from app.ui.dialogs.razorpay_check_dialog import RazorpayCheckDialog
+        dlg = RazorpayCheckDialog(self, self.ctx)
+        if dlg.load():
+            dlg.exec()
 
     @ui_action
     def load(self, offset: int = 0) -> None:
