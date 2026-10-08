@@ -1,4 +1,5 @@
 """Edge cases and regression tests found during exploratory testing."""
+import os
 from decimal import Decimal
 from decimal import Decimal as D
 
@@ -203,7 +204,11 @@ def test_invoice_prefix_wildcard_chars_are_literal(services, admin, make_product
 
 
 # ---- backup ----------------------------------------------------------------------
-@pytest.mark.parametrize("folder", ["Backups #2", "what?", "100% safe", "100%25", "plain"])
+@pytest.mark.parametrize("folder", [
+    "Backups #2", "100% safe", "100%25", "plain",
+    pytest.param("what?", marks=pytest.mark.skipif(
+        os.name == "nt", reason="'?' cannot appear in a Windows folder name")),
+])
 def test_backup_and_restore_with_special_chars_in_path(services, admin, tmp_path, folder):
     dest = tmp_path / folder
     target = services.backup.create_backup(admin, dest_dir=dest)
