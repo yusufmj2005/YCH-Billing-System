@@ -206,7 +206,7 @@ class SettingsPage(Page):
         f.addRow("", label("Users, roles and permissions are managed on the Users & Permissions "
                            "page.", "Faint"))
         if ctx.can(Perm.MANAGE_USERS) or ctx.can(Perm.MANAGE_ROLES):
-            f.addRow("", button("Open Users & Permissions", "ghost",
+            f.addRow("", button("Open Users && Permissions", "ghost",
                                 lambda: ctx.navigate("users")))
         lay.addWidget(button("Save", "primary", self.save_security), alignment=Qt.AlignRight)
 
