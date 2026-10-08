@@ -50,6 +50,12 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+      - name: Check tag matches APP_VERSION
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $v = python -c "from app.config.constants import APP_VERSION; print(APP_VERSION)"
+          if ("v$v" -ne "${{ github.ref_name }}") { throw "Tag ${{ github.ref_name }} does not match APP_VERSION $v" }
       - name: Ensure Inno Setup 6
         shell: pwsh
         run: |
@@ -96,12 +102,36 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v5
       - uses: actions/download-artifact@v4
         with:
           name: BusinessPOS-Setup
+          path: dist-release
+      - name: Release notes from CHANGELOG.md
+        run: |
+          ver="${GITHUB_REF_NAME#v}"
+          section=$(awk -v h="## $ver" '$0==h{p=1;next} /^## /{if(p)exit} p' CHANGELOG.md)
+          if [ -z "$section" ]; then echo "CHANGELOG.md has no '## $ver' section"; exit 1; fi
+          sha=$(cut -d' ' -f1 dist-release/BusinessPOS-Setup.exe.sha256)
+          {
+            echo "## Download"
+            echo
+            echo "Download **BusinessPOS-Setup.exe** below and run it (Windows 10/11, 64-bit)."
+            echo "New installs: follow the [go-live checklist](https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_REF_NAME}/docs/GO-LIVE-CHECKLIST.md)."
+            echo "Updating: run the installer over the existing version; your data is kept and backed up automatically."
+            echo
+            echo "SHA-256: \`$sha\`"
+            echo
+            echo "This installer passed the automated tests, a packaged self-test, and an install, self-test and uninstall on a clean Windows machine."
+            echo
+            echo "$section"
+          } > release-notes.md
+          cat release-notes.md
       - uses: softprops/action-gh-release@v2
         with:
+          name: BusinessPOS ${{ github.ref_name }}
+          body_path: release-notes.md
+          make_latest: true
           files: |
-            BusinessPOS-Setup.exe
-            BusinessPOS-Setup.exe.sha256
-          generate_release_notes: true
+            dist-release/BusinessPOS-Setup.exe
+            dist-release/BusinessPOS-Setup.exe.sha256

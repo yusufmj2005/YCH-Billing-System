@@ -37,6 +37,8 @@ first start, after an automatic `pre-upgrade-v1` backup (schema v1 → v2).
 - **Tests:** 87 → 162. They now include end-to-end reconciliation of every report,
   the setup wizard and sign-in screens, and the business rules for every module.
 - **Documentation:** `docs/GO-LIVE-CHECKLIST.md` and `docs/ACCEPTANCE-TEST.md`.
+- **Licence:** BusinessPOS is now distributed under a proprietary licence (`LICENSE`), shown and accepted during installation. Third-party open-source components are listed in `THIRD-PARTY-NOTICES.md`, which is installed alongside the program.
+- **README** rewritten for shop owners and developers, with screenshots.
 
 ### Removed
 - The committed `installer_output/BusinessPOS-Setup.exe`. It was the 1.0.0 build

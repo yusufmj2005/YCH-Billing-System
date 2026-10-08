@@ -19,7 +19,7 @@
 #endif
 ; Publisher shown in "Apps & features". Override: ISCC /DMyAppPublisher="Your Company"
 #ifndef MyAppPublisher
-  #define MyAppPublisher "BusinessPOS"
+  #define MyAppPublisher "yusufmj2005"
 #endif
 #define MyAppExeName "BusinessPOS.exe"
 #define MyAppMutex "BusinessPOS_SingleInstance_Mutex"
@@ -31,6 +31,7 @@ AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
+AppCopyright=Copyright (c) 2026 {#MyAppPublisher}. All rights reserved.
 VersionInfoVersion={#MyAppVersion}
 VersionInfoProductName={#MyAppName}
 VersionInfoDescription={#MyAppName} Setup
@@ -42,6 +43,7 @@ AllowNoIcons=yes
 OutputDir=..\installer_output
 OutputBaseFilename=BusinessPOS-Setup
 SetupIconFile=..\assets\icons\app.ico
+LicenseFile=..\LICENSE
 UninstallDisplayIcon={app}\{#MyAppExeName}
 UninstallDisplayName={#MyAppName}
 WizardStyle=modern
@@ -69,6 +71,8 @@ Type: filesandordirs; Name: "{app}\_internal"
 
 [Files]
 Source: "..\dist\BusinessPOS\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\LICENSE"; DestDir: "{app}"; DestName: "LICENSE.txt"; Flags: ignoreversion
+Source: "..\THIRD-PARTY-NOTICES.md"; DestDir: "{app}"; DestName: "THIRD-PARTY-NOTICES.txt"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"

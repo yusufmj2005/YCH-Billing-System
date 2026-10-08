@@ -21,6 +21,7 @@ VSVersionInfo(
       StringStruct('FileDescription', '{APP_NAME} - Point of Sale & Business Management'),
       StringStruct('FileVersion', '{APP_VERSION}'),
       StringStruct('InternalName', '{APP_NAME}'),
+      StringStruct('LegalCopyright', 'Copyright (c) 2026 yusufmj2005. All rights reserved.'),
       StringStruct('OriginalFilename', '{APP_NAME}.exe'),
       StringStruct('ProductName', '{APP_NAME}'),
       StringStruct('ProductVersion', '{APP_VERSION}')])]),

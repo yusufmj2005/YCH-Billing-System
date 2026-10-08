@@ -1,0 +1,65 @@
+BusinessPOS - Proprietary Software Licence
+
+Copyright (c) 2026 yusufmj2005. All rights reserved.
+
+This licence covers the BusinessPOS software: its source code, compiled
+programs, installer, documentation, images and other files in this repository
+(the "Software"), except the third-party components listed in
+THIRD-PARTY-NOTICES.md.
+
+1. OWNERSHIP
+   The Software is owned by the copyright holder named above and is protected
+   by copyright law. It is licensed, not sold. All rights not expressly granted
+   in this licence are reserved by the copyright holder.
+
+2. PERMITTED USE
+   The copyright holder, and any person or business that the copyright holder
+   has authorised in writing, may install and use the Software on computers
+   they own or control, solely to operate their own business.
+
+3. RESTRICTIONS
+   Unless the copyright holder has given prior written permission, you may not:
+   a) copy, modify, translate or create derivative works of the Software;
+   b) distribute, publish, sell, rent, lease, lend, sublicense or otherwise
+      make the Software available to any third party;
+   c) remove or alter any copyright, licence or proprietary notice; or
+   d) reverse engineer, decompile or disassemble the compiled Software, except
+      to the extent that applicable law expressly permits it despite this
+      restriction.
+   The fact that the source code can be viewed (for example in a public
+   repository) does not grant any of these rights.
+
+4. THIRD-PARTY COMPONENTS
+   The Software includes open-source components that are licensed to you under
+   their own licences, listed in THIRD-PARTY-NOTICES.md. Nothing in this
+   licence limits the rights those licences give you. In particular, the Qt /
+   PySide6 libraries are provided under the GNU Lesser General Public License
+   v3 and may be replaced by you with compatible versions.
+
+5. YOUR DATA AND YOUR RESPONSIBILITIES
+   Business data you enter is stored on your own computer and remains yours.
+   You are responsible for keeping backups, for the tax rates and invoice
+   details you configure, and for confirming that invoices, tax and other
+   records meet the legal requirements that apply to your business. The
+   Software records information; it does not give tax, legal or accounting
+   advice.
+
+6. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.
+
+7. LIMITATION OF LIABILITY
+   TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT SHALL THE COPYRIGHT
+   HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, INCLUDING LOSS
+   OF DATA, PROFITS OR BUSINESS, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+   OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR ITS
+   USE.
+
+8. TERMINATION
+   This licence ends automatically if you breach any of its terms. On
+   termination you must stop using the Software and delete all copies in your
+   possession. Sections 5 to 8 survive termination.
+
+For permission requests, contact the copyright holder through
+https://github.com/yusufmj2005.
