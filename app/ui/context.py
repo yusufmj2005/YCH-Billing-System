@@ -21,6 +21,7 @@ class AppContext:
     user: CurrentUser
     toast: Callable[[str], None] = field(default=lambda msg: None)
     navigate: Callable[[str], None] = field(default=lambda key: None)
+    upi_setup_declined: bool = False    # "Not now" at checkout: don't ask again this session
     _settings: dict | None = None
 
     @property

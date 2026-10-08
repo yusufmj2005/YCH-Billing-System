@@ -74,7 +74,7 @@ PANELS = {
              "Fast GST billing, accurate stock, returns that add up and reports that agree. "
              "Fully offline on one PC."),
             ("purple", "target", "Currently",
-             "v1.1.0 is out: UPI QR payments, GSTR-1 reports, encrypted backups and "
+             "v1.1.1 is out: UPI QR payments, GSTR-1 reports, encrypted backups and "
              "lost-receipt returns."),
         ],
     },

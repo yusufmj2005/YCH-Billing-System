@@ -8,7 +8,7 @@ categories, payment methods).
 from __future__ import annotations
 
 APP_NAME = "BusinessPOS"
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.1.1"
 APP_ID = "BusinessPOS"  # used for data folder / mutex names
 APP_MUTEX_NAME = "BusinessPOS_SingleInstance_Mutex"
 

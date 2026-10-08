@@ -4,17 +4,17 @@ from __future__ import annotations
 from decimal import Decimal
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QButtonGroup, QDialog, QFormLayout, QFrame, QGridLayout,
+from PySide6.QtWidgets import (QButtonGroup, QDialog, QDialogButtonBox, QFormLayout, QFrame, QGridLayout,
                                QHBoxLayout, QHeaderView, QLabel, QLineEdit, QPushButton,
                                QRadioButton, QTableWidget, QTableWidgetItem, QVBoxLayout)
 
-from app.config.constants import PaymentKind
+from app.config.constants import PaymentKind, Perm
 from app.services.errors import BusinessError, ValidationError
 from app.services.pricing import CartResult
 from app.services.sales_service import PaymentRequest, SaleRequest
 from app.ui import documents
 from app.ui.widgets.common import button, handle_exception, icon_button, label, show_error
-from app.ui.widgets.forms import decimal_edit
+from app.ui.widgets.forms import Field, FormDialog, decimal_edit
 from app.utils.money import ZERO, fmt_money, money
 
 
@@ -159,6 +159,7 @@ class CheckoutDialog(QDialog):
             grid.addWidget(b, i // 3, i % 3)
         lay.addLayout(grid)
         self.method_group.idClicked.connect(self._method_changed)
+        self.method_group.idClicked.connect(self._method_clicked)
 
         form = QFormLayout()
         form.setLabelAlignment(Qt.AlignRight | Qt.AlignVCenter)
@@ -181,6 +182,9 @@ class CheckoutDialog(QDialog):
         form.addRow(self.lbl_cash, self.cash_received)
         form.addRow("", self.change_lbl)
         lay.addLayout(form)
+        self.upi_hint = label("", "Faint", wrap=True)
+        self.upi_hint.hide()
+        lay.addWidget(self.upi_hint)
         lay.addWidget(label("Never enter card numbers, CVV, PINs or UPI PINs. Only the "
                             "transaction / reference ID is recorded.", "Faint", wrap=True))
         self.cash_received.textChanged.connect(self._update_change)
@@ -244,8 +248,15 @@ class CheckoutDialog(QDialog):
         self.description.setVisible(req)
         self.lbl_desc.setVisible(req)
         is_cash = pm["kind"] == PaymentKind.CASH
-        self.upi_btn.setVisible(pm["kind"] == PaymentKind.UPI
-                                and bool(self.ctx.settings.get("upi_id")))
+        is_upi = pm["kind"] == PaymentKind.UPI
+        has_id = bool(self.ctx.settings.get("upi_id"))
+        self.upi_btn.setVisible(is_upi and has_id)
+        admin = self.ctx.can(Perm.MANAGE_SETTINGS)
+        self.upi_hint.setText("UPI QR is not set up. " + (
+            "Add the shop's UPI ID in Settings › Payments." if admin else
+            "An administrator can add the shop's UPI ID in Settings › Payments."))
+        self.upi_hint.setVisible(is_upi and not has_id
+                                 and (not admin or self.ctx.upi_setup_declined))
         self.cash_received.setVisible(is_cash)
         self.lbl_cash.setVisible(is_cash)
         self.change_lbl.setVisible(is_cash)
@@ -267,6 +278,41 @@ class CheckoutDialog(QDialog):
         else:
             self.change_lbl.setText("")
 
+    def _method_clicked(self, _i: int) -> None:
+        """Choosing UPI opens the QR for the amount due straight away."""
+        pm = self._method()
+        if pm is None or pm["kind"] != PaymentKind.UPI or self._remaining() <= 0:
+            return
+        if not self.ctx.settings.get("upi_id"):
+            if (not self.ctx.can(Perm.MANAGE_SETTINGS) or self.ctx.upi_setup_declined
+                    or not self._setup_upi()):
+                return
+        self._show_upi_qr()
+
+    def _setup_upi(self) -> bool:
+        """Ask once for the shop's UPI ID (administrators only) and save it."""
+        def save(data: dict) -> None:
+            self.ctx.services.settings.update(self.ctx.user, data)
+            self.ctx.reload_settings()
+
+        form = FormDialog(self, "Set up UPI QR", [
+            Field("upi_id", "Shop UPI ID", required=True, max_length=100,
+                  placeholder="e.g. 9876543210@ybl",
+                  help="Shown in your UPI app under profile or UPI settings."),
+            Field("upi_payee_name", "Name shown to customer", max_length=50,
+                  placeholder=self.ctx.settings.get("business_name") or "")],
+            {"upi_payee_name": self.ctx.settings.get("business_name") or ""},
+            on_submit=save, submit_text="Save and show QR",
+            intro="Customers will scan a QR code for the exact bill amount and the money "
+                  "goes straight to this UPI ID. You can change it later in "
+                  "Settings › Payments.")
+        form.findChild(QDialogButtonBox).button(QDialogButtonBox.Cancel).setText("Not now")
+        ok = form.exec()
+        if not ok:
+            self.ctx.upi_setup_declined = True     # record UPI by hand; ask again next start
+        self._method_changed(self.method_group.checkedId())
+        return bool(ok) and bool(self.ctx.settings.get("upi_id"))
+
     def _show_upi_qr(self) -> None:
         from app.ui.dialogs.upi_dialog import UpiQrDialog
         try:
@@ -281,8 +327,8 @@ class CheckoutDialog(QDialog):
         except BusinessError as exc:
             show_error(self, str(exc))
             return
-        if dlg.exec():
-            self._add_payment()
+        if dlg.exec() and self._add_payment():
+            self.complete_btn.setFocus()
 
     def _add_payment(self) -> bool:
         pm = self._method()

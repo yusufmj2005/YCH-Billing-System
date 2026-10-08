@@ -73,6 +73,8 @@ def test_checkout_dialog_split_payment(qapp, services, admin, make_product, meth
     """Drive the real checkout dialog: Cash 100 + UPI rest with a reference."""
     from app.ui.dialogs import checkout_dialog as cd
     monkeypatch.setattr(cd.SaleCompleteDialog, "exec", lambda self: 0)
+    asked = []
+    monkeypatch.setattr(cd.FormDialog, "exec", lambda self: asked.append(1) or 0)  # "Not now"
     pid = make_product(stock="5", price="250")
     win = MainWindow(AppContext(services=services, user=admin))
     win.navigate("pos")
@@ -85,7 +87,10 @@ def test_checkout_dialog_split_payment(qapp, services, admin, make_product, meth
     assert dlg._add_payment()
     upi = next(i for i, m in enumerate(dlg.methods) if m["kind"] == "UPI")
     dlg.method_group.button(upi).click()
-    assert dlg.amount.text() == "150.00"
+    assert dlg.amount.text() == "150.00" and asked == [1]   # UPI ID set-up offered once
+    dlg.method_group.button(0).click()
+    dlg.method_group.button(upi).click()
+    assert asked == [1] and not dlg.upi_hint.isHidden()  # not asked again this session
     dlg.reference.setText("UPI-TEST-REF")
     dlg._complete()
     assert dlg.sale is not None, no_dialogs

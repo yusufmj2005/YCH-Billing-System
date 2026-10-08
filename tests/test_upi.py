@@ -88,51 +88,129 @@ def test_qr_pixmap_matches_matrix(qapp):
             assert (px.lightness() < 128) == dark, (r, c)
 
 
-def test_checkout_upi_qr_flow(qapp, services, admin, make_product, monkeypatch):
+def _checkout_factory(services, admin, make_product, monkeypatch):
+    from app.services.sales_service import SaleLineRequest, SaleRequest
     from app.ui.context import AppContext
     from app.ui.dialogs import checkout_dialog as cd
-    from app.ui.dialogs import upi_dialog
     from app.ui.windows.main_window import MainWindow
-    from app.services.sales_service import SaleLineRequest, SaleRequest
     shown = []
     monkeypatch.setattr(QMessageBox, "warning", lambda *a, **k: shown.append(a))
     monkeypatch.setattr(cd.SaleCompleteDialog, "exec", lambda self: 0)
     pid = make_product(stock="5", price="250")
-    req = SaleRequest(lines=[SaleLineRequest(pid, D(1))])
 
-    def checkout():
-        win = MainWindow(AppContext(services=services, user=admin))
+    def checkout(user=admin):
+        win = MainWindow(AppContext(services=services, user=user))
         win.navigate("pos")
         pos = win.pages["pos"]
         pos.add_product(services.catalog.get_product(admin, pid))
-        return win, cd.CheckoutDialog(win, win.ctx, pos.compute(), req)
+        req = SaleRequest(lines=[SaleLineRequest(pid, D(1))])
+        dlg = cd.CheckoutDialog(win, win.ctx, pos.compute(), req)
+        upi = next(i for i, m in enumerate(dlg.methods) if m["kind"] == "UPI")
+        return win, dlg, dlg.method_group.button(upi)
+    return checkout, shown
 
-    # no UPI ID configured: the QR button stays hidden
-    win, dlg = checkout()
-    upi = next(i for i, m in enumerate(dlg.methods) if m["kind"] == "UPI")
-    dlg.method_group.button(upi).click()
-    assert dlg.upi_btn.isHidden()
-    win.close()
 
-    services.settings.update(admin, {"upi_id": "yarnshop@okaxis", "upi_payee_name": "Yarn Shop"})
-    win, dlg = checkout()
-    dlg.amount.setText("100")                       # cash part first
-    assert dlg._add_payment()
-    dlg.method_group.button(upi).click()
-    assert not dlg.upi_btn.isHidden() and dlg.amount.text() == "150.00"
-    seen = {}
+def _fake_qr(monkeypatch, answer=1):
+    from app.ui.dialogs import upi_dialog
+    seen = []
 
     def fake_exec(self):
-        seen["uri"] = self.uri
-        return 1                                    # cashier clicks "Payment received"
+        seen.append(self.uri)
+        return answer                    # 1 = cashier clicks "Payment received"
     monkeypatch.setattr(upi_dialog.UpiQrDialog, "exec", fake_exec)
-    dlg._show_upi_qr()
-    assert "am=150.00" in seen["uri"] and "pa=yarnshop@okaxis" in seen["uri"]
+    return seen
+
+
+def test_selecting_upi_opens_the_qr_for_the_amount_due(qapp, services, admin, make_product,
+                                                       monkeypatch):
+    checkout, shown = _checkout_factory(services, admin, make_product, monkeypatch)
+    services.settings.update(admin, {"upi_id": "yarnshop@okaxis", "upi_payee_name": "Yarn Shop"})
+    seen = _fake_qr(monkeypatch)
+    win, dlg, upi_btn = checkout()
+    assert seen == []                               # Cash is the default; no QR yet
+    dlg.amount.setText("100")                       # cash part first
+    assert dlg._add_payment()
+    upi_btn.click()                                 # choosing UPI opens the QR at once
+    assert len(seen) == 1 and "am=150.00" in seen[0] and "pa=yarnshop@okaxis" in seen[0]
     assert [(p["method"]["kind"], p["amount"]) for p in dlg.payments] == [
         ("CASH", D("100")), ("UPI", D("150.00"))]
+    assert not dlg.upi_btn.isHidden()               # can be shown again from the button
+    upi_btn.click()                                 # nothing left to pay: no second QR
+    assert len(seen) == 1
     dlg._complete()
     assert dlg.sale is not None, shown
     sale = services.sales.get_sale(admin, dlg.sale["sale_id"])
     assert [(p["method"], p["amount"]) for p in sale["payments"]] == [
         ("Cash", D("100.00")), ("UPI", D("150.00"))]
+    win.close()
+
+
+def test_closing_the_qr_records_nothing(qapp, services, admin, make_product, monkeypatch):
+    checkout, _ = _checkout_factory(services, admin, make_product, monkeypatch)
+    services.settings.update(admin, {"upi_id": "yarnshop@okaxis"})
+    seen = _fake_qr(monkeypatch, answer=0)          # cashier clicks Cancel
+    win, dlg, upi_btn = checkout()
+    upi_btn.click()
+    assert len(seen) == 1 and "am=250.00" in seen[0]
+    assert dlg.payments == [] and dlg.amount.text() == "250.00"
+    win.close()
+
+
+def test_first_upi_click_asks_admin_for_the_upi_id(qapp, services, admin, make_product,
+                                                   monkeypatch):
+    from app.ui.dialogs import checkout_dialog as cd
+    checkout, _ = _checkout_factory(services, admin, make_product, monkeypatch)
+    seen = _fake_qr(monkeypatch)
+    asked = []
+
+    def fill(self):                                  # admin types the ID and saves
+        asked.append(self.windowTitle())
+        self.widgets["upi_id"].setText(" 9840566252@slc ")
+        self._submit()
+        return self.result()
+    monkeypatch.setattr(cd.FormDialog, "exec", fill)
+    win, dlg, upi_btn = checkout()
+    upi_btn.click()
+    assert asked == ["Set up UPI QR"]
+    assert services.settings.get_all()["upi_id"] == "9840566252@slc"
+    assert len(seen) == 1 and "pa=9840566252@slc" in seen[0] and "am=250.00" in seen[0]
+    assert [p["method"]["kind"] for p in dlg.payments] == ["UPI"]
+    assert not dlg.upi_btn.isHidden()
+    win.close()
+
+    # "Not now" shows no QR, records nothing, and is not asked again this session
+    services.settings.update(admin, {"upi_id": ""})
+    seen.clear()
+    asked.clear()
+
+    def decline(self):
+        asked.append(self.findChild(cd.QDialogButtonBox).button(
+            cd.QDialogButtonBox.Cancel).text())
+        return 0
+    monkeypatch.setattr(cd.FormDialog, "exec", decline)
+    win, dlg, upi_btn = checkout()
+    upi_btn.click()
+    assert asked == ["Not now"]
+    assert seen == [] and dlg.payments == [] and dlg.upi_btn.isHidden()
+    assert not dlg.upi_hint.isHidden() and "Settings › Payments" in dlg.upi_hint.text()
+    upi_btn.click()
+    assert asked == ["Not now"] and seen == []
+    win.close()
+
+
+def test_cashier_without_upi_id_sees_a_note_not_a_prompt(qapp, services, admin, make_product,
+                                                         monkeypatch):
+    from app.ui.dialogs import checkout_dialog as cd
+    checkout, _ = _checkout_factory(services, admin, make_product, monkeypatch)
+    seen = _fake_qr(monkeypatch)
+    monkeypatch.setattr(cd.FormDialog, "exec",
+                        lambda self: pytest.fail("cashier must not get the set-up form"))
+    role = next(r["id"] for r in services.users.list_roles(admin) if r["name"] == "Cashier")
+    services.users.create_user(admin, {"username": "cashier", "password": "Cashier-123",
+                                       "role_id": role, "must_change_password": False})
+    win, dlg, upi_btn = checkout(services.auth.login("cashier", "Cashier-123"))
+    upi_btn.click()
+    assert seen == [] and dlg.upi_btn.isHidden() and not dlg.upi_hint.isHidden()
+    dlg._complete()                                 # UPI can still be recorded by hand
+    assert dlg.sale is not None
     win.close()

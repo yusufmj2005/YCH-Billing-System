@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.1.1
+
+Faster UPI at checkout. No database changes; installing over 1.1.0 or 1.0.x keeps all data.
+
+### Changed
+- **Choosing UPI at checkout opens the QR code straight away** for the amount
+  due; no extra click. *Payment received* records it, then Enter completes the
+  sale. *Show UPI QR* is still there to show it again.
+- **First-time set-up from checkout.** If no UPI ID has been saved yet, an
+  administrator is asked for it once (saved to Settings › Payments) and the QR
+  opens. *Not now* skips it until the program is restarted. Cashiers see a note
+  to ask an administrator. UPI payments can always be recorded by hand.
+
 ## 1.1.0
 
 New features for everyday billing, tax filing and data safety. No database
