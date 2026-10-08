@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
 from sqlalchemy import exists, func, or_, select
@@ -317,6 +317,51 @@ class SalesService:
                     "cashier": x.user.username if x.user else "",
                 })
             return rows, total
+
+    def find_invoices_for_return(self, actor: CurrentUser, *, product: str = "",
+                                 customer: str = "", days: int = 90,
+                                 limit: int = 50) -> list[dict]:
+        """Invoices a customer may be returning goods from when the receipt is lost:
+        completed sales in the last ``days`` days matching a product (name, SKU or
+        barcode) and/or a customer (name or phone), with something still returnable."""
+        require(actor, Perm.PROCESS_RETURN)
+        product, customer = (product or "").strip(), (customer or "").strip()
+        if not product and not customer:
+            raise ValidationError("Enter a product or a customer to search for.")
+        since = day_start(date.today()) - timedelta(days=max(1, int(days)))
+        with self.db.session() as s:
+            q = (select(Sale).where(Sale.status == SaleStatus.COMPLETED, Sale.created_at >= since)
+                 .order_by(Sale.id.desc()))
+            if customer:
+                like = f"%{customer}%"
+                q = q.where(or_(Sale.customer_name.ilike(like), Sale.customer_phone.ilike(like)))
+            if product:
+                like = f"%{product}%"
+                q = q.where(exists().where(
+                    SaleItem.sale_id == Sale.id,
+                    or_(SaleItem.product_name.ilike(like), SaleItem.sku.ilike(like),
+                        SaleItem.product_id.in_(select(Product.id).where(
+                            Product.barcode == product)))))
+            out = []
+            for sale in s.scalars(q.limit(limit * 3)):
+                returned = dict(s.execute(
+                    select(ReturnItem.sale_item_id, func.sum(ReturnItem.quantity))
+                    .join(SaleReturn).where(SaleReturn.sale_id == sale.id)
+                    .group_by(ReturnItem.sale_item_id)).all())
+                open_items = [it for it in sale.items
+                              if it.quantity - (returned.get(it.id) or ZERO) > 0]
+                if not open_items:
+                    continue
+                out.append({"id": sale.id, "invoice_no": sale.invoice_no,
+                            "created_at": sale.created_at,
+                            "customer": sale.customer_name or "Walk-in",
+                            "phone": sale.customer_phone or "",
+                            "items": ", ".join(f"{it.product_name} × {fmt_qty(it.quantity)}"
+                                               for it in sale.items),
+                            "grand_total": sale.grand_total})
+                if len(out) >= limit:
+                    break
+            return out
 
     def get_sale(self, actor: CurrentUser, sale_id: int | None = None,
                  invoice_no: str | None = None) -> dict:

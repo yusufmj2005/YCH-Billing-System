@@ -40,8 +40,10 @@ class ReturnDialog(QDialog):
         top.addWidget(label("Invoice", "SectionTitle"))
         top.addWidget(self.invoice, 1)
         top.addWidget(button("Load invoice", "primary", self.load))
+        top.addWidget(button("Find invoice…", None, self.find_invoice))
         lay.addLayout(top)
-        self.info = label("Enter the invoice number from the customer's receipt.", "Muted")
+        self.info = label("Enter the invoice number from the customer's receipt. Receipt lost? "
+                          "Use Find invoice to search by product or customer.", "Muted")
         lay.addWidget(self.info)
 
         self.table = QTableWidget(0, 7)
@@ -102,6 +104,12 @@ class ReturnDialog(QDialog):
         self.refund_box.addWidget(w)
         self.refund_rows.append((combo, amt, ref))
         return combo
+
+    def find_invoice(self):
+        dlg = FindInvoiceDialog(self, self.ctx)
+        if dlg.exec() and dlg.selected:
+            self.invoice.setText(dlg.selected["invoice_no"])
+            self.load()
 
     def load(self):
         try:
@@ -221,3 +229,70 @@ class ReturnDialog(QDialog):
             except Exception as exc:  # noqa: BLE001
                 handle_exception(self, exc)
         self.accept()
+
+
+class FindInvoiceDialog(QDialog):
+    """Find the original invoice when the customer has lost the receipt."""
+
+    def __init__(self, parent, ctx):
+        from app.reports.base import Col
+        from app.ui.widgets.table import DataTable
+        super().__init__(parent)
+        self.ctx = ctx
+        self.selected: dict | None = None
+        self.setWindowTitle("Find the original invoice")
+        self.resize(900, 520)
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(18, 16, 18, 16)
+        lay.addWidget(label("Search recent invoices by what was bought and/or who bought it. "
+                            "Only invoices with something left to return are shown.", "Muted",
+                            wrap=True))
+        row = QHBoxLayout()
+        self.product = QLineEdit()
+        self.product.setPlaceholderText("Product name, SKU or scan barcode")
+        self.customer = QLineEdit()
+        self.customer.setPlaceholderText("Customer name or phone")
+        self.days = QComboBox()
+        for text, d in (("Last 30 days", 30), ("Last 90 days", 90), ("Last year", 365)):
+            self.days.addItem(text, d)
+        self.days.setCurrentIndex(1)
+        for w in (self.product, self.customer):
+            w.returnPressed.connect(self.search)
+            row.addWidget(w, 1)
+        row.addWidget(self.days)
+        row.addWidget(button("Search", "primary", self.search))
+        lay.addLayout(row)
+        self.table = DataTable([Col("invoice_no", "Invoice"),
+                                Col("created_at", "Date", "datetime"),
+                                Col("customer", "Customer"), Col("phone", "Phone"),
+                                Col("items", "Items"), Col("grand_total", "Total", "money")],
+                               stretch="items")
+        self.table.activated.connect(self._choose)
+        lay.addWidget(self.table, 1)
+        self.status = label("", "Faint")
+        lay.addWidget(self.status)
+        btns = QHBoxLayout()
+        btns.addStretch(1)
+        btns.addWidget(button("Cancel", None, self.reject))
+        btns.addWidget(button("Use this invoice", "success",
+                              lambda: self._choose(self.table.selected())))
+        lay.addLayout(btns)
+        self.product.setFocus()
+
+    def search(self):
+        try:
+            rows = self.ctx.services.sales.find_invoices_for_return(
+                self.ctx.user, product=self.product.text(), customer=self.customer.text(),
+                days=self.days.currentData())
+        except BusinessError as exc:
+            show_error(self, str(exc))
+            return
+        self.table.set_rows(rows)
+        self.status.setText(f"{len(rows)} invoice(s) found" if rows else
+                            "No matching invoice with returnable items. Try a longer period "
+                            "or fewer words.")
+
+    def _choose(self, row):
+        if row:
+            self.selected = row
+            self.accept()
