@@ -8,12 +8,12 @@
 
 Billing · GST invoices · Stock · Purchases · Returns · Reports · Staff · Backups
 
-[![Test & build installer](https://github.com/yusufmj2005/YCH/actions/workflows/build.yml/badge.svg)](https://github.com/yusufmj2005/YCH/actions/workflows/build.yml)
+[![Test & build installer](https://github.com/yusufmj2005/YCH-Billing-System/actions/workflows/build.yml/badge.svg)](https://github.com/yusufmj2005/YCH-Billing-System/actions/workflows/build.yml)
 ![Version](https://img.shields.io/badge/version-1.0.1-2563eb)
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20(64--bit)-0f172a)
 ![Licence](https://img.shields.io/badge/licence-proprietary-6b7280)
 
-[**Download**](https://github.com/yusufmj2005/YCH/releases/latest) ·
+[**Download**](https://github.com/yusufmj2005/YCH-Billing-System/releases/latest) ·
 [Go-live checklist](docs/GO-LIVE-CHECKLIST.md) ·
 [Acceptance test](docs/ACCEPTANCE-TEST.md) ·
 [Changelog](CHANGELOG.md)
@@ -83,7 +83,7 @@ Windows program; you do not need Python or any technical tools.
 ### 1. Download
 
 Download **`BusinessPOS-Setup.exe`** from the
-[latest release](https://github.com/yusufmj2005/YCH/releases/latest).
+[latest release](https://github.com/yusufmj2005/YCH-Billing-System/releases/latest).
 
 Each release also has a `.sha256` file. To confirm the download is intact, run
 this in PowerShell and compare the result with that file:
@@ -376,10 +376,12 @@ Every push runs [`.github/workflows/build.yml`](.github/workflows/build.yml):
 **To publish a release:**
 1. Set `APP_VERSION` in `app/config/constants.py`.
 2. Add a section for that version to `CHANGELOG.md`.
-3. Push a tag such as `v1.0.2`.
+3. Either push a tag such as `v1.0.2`, or open **Actions → Test & build installer
+   → Run workflow** and tick **Publish a GitHub Release**.
 
-The workflow checks that the tag matches `APP_VERSION`, builds and verifies the
-installer, and publishes a GitHub Release. The release notes come from the
+The workflow checks that the tag matches `APP_VERSION` (when started manually, the
+tag is taken from `APP_VERSION`), builds and verifies the installer, and only then
+publishes a GitHub Release. The release notes come from the
 changelog, and the installer and checksum are attached. Installers are never
 committed to the repository.
 
