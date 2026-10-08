@@ -61,6 +61,8 @@ DEFAULT_SETTINGS: dict[str, object] = {
     # Backup
     "auto_backup_on_start": True,
     "backup_keep_count": 30,
+    "backup_on_exit": True,
+    "backup_copy_folder": "",       # second copy of automatic backups (USB / cloud folder)
 }
 
 

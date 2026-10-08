@@ -190,8 +190,19 @@ class SettingsPage(Page):
         self.keep = QSpinBox()
         self.keep.setRange(1, 1000)
         f.addRow("Sign out after inactivity", self.idle)
+        self.exit_backup = QCheckBox("Also back up every time the application is closed")
+        self.copy_folder = QLineEdit()
+        self.copy_folder.setPlaceholderText("Optional: USB drive or OneDrive / Google Drive folder")
+        copy_row = QHBoxLayout()
+        copy_row.addWidget(self.copy_folder, 1)
+        copy_row.addWidget(button("Choose…", None, self._pick_copy_folder))
         f.addRow("", self.auto_backup)
+        f.addRow("", self.exit_backup)
         f.addRow("Automatic backups to keep", self.keep)
+        f.addRow("Second copy folder", copy_row)
+        f.addRow("", label("Each automatic backup is also copied here, so your data survives if "
+                           "this computer fails or is stolen. You are warned at start-up if the "
+                           "folder is not available.", "Faint", wrap=True))
         f.addRow("", label("Users, roles and permissions are managed on the Users & Permissions "
                            "page.", "Faint"))
         if ctx.can(Perm.MANAGE_USERS) or ctx.can(Perm.MANAGE_ROLES):
@@ -235,6 +246,8 @@ class SettingsPage(Page):
         self.idle.setValue(int(s.get("idle_logout_minutes", 0)))
         self.auto_backup.setChecked(bool(s.get("auto_backup_on_start", True)))
         self.keep.setValue(int(s.get("backup_keep_count", 30)))
+        self.exit_backup.setChecked(bool(s.get("backup_on_exit", True)))
+        self.copy_folder.setText(s.get("backup_copy_folder", ""))
         self.load_tax()
         self.load_methods()
 
@@ -304,8 +317,16 @@ class SettingsPage(Page):
     def save_security(self):
         self._save({"idle_logout_minutes": self.idle.value(),
                     "auto_backup_on_start": self.auto_backup.isChecked(),
-                    "backup_keep_count": self.keep.value()},
+                    "backup_on_exit": self.exit_backup.isChecked(),
+                    "backup_keep_count": self.keep.value(),
+                    "backup_copy_folder": self.copy_folder.text()},
                    "Saved (auto sign-out applies from the next sign-in)")
+
+    def _pick_copy_folder(self):
+        folder = QFileDialog.getExistingDirectory(self, "Choose the second backup folder",
+                                                  self.copy_folder.text())
+        if folder:
+            self.copy_folder.setText(folder)
 
     # ---- tax rates / payment methods ---------------------------------------------------
     @ui_action

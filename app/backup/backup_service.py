@@ -188,3 +188,57 @@ class BackupService:
         target = self.create_backup(None, kind="auto")
         self.prune_auto_backups(keep)
         return target
+
+    # ---- second copy (USB drive / cloud-synced folder) ----------------------------
+    def copy_to_folder(self, backup: Path, folder: str | Path, keep: int) -> Path:
+        """Copy ``backup`` into ``folder`` (verified), keeping the newest ``keep``
+        automatic backups there. Raises BusinessError if the folder is unavailable."""
+        dest_dir = Path(folder)
+        if not dest_dir.is_dir():
+            raise BusinessError(f"The backup copy folder {dest_dir} is not available.")
+        target = dest_dir / Path(backup).name
+        tmp = target.with_suffix(".tmp")
+        try:
+            _copy_db(Path(backup), tmp)
+            self.validate_backup(tmp)
+            os.replace(tmp, target)
+        except (OSError, sqlite3.Error, ValidationError) as exc:
+            tmp.unlink(missing_ok=True)
+            raise BusinessError(f"The backup could not be copied to {dest_dir}.") from exc
+        autos = [b for b in self.list_backups(dest_dir) if b["kind"] == "auto"]
+        for b in autos[keep:]:
+            try:
+                Path(b["path"]).unlink()
+            except OSError:
+                log.warning("Could not remove old backup copy %s", b["path"])
+        return target
+
+    def run_automatic(self, settings: dict, *, on_exit: bool = False) -> str | None:
+        """Automatic backup at start-up (once a day) or when the app closes
+        (always, so the day's work is saved), then the optional second copy.
+        Returns a user-facing warning when the second copy failed, else None."""
+        keep = int(settings.get("backup_keep_count") or 30)
+        if on_exit:
+            target = self.create_backup(None, kind="auto")
+            self.prune_auto_backups(keep)
+        else:
+            target = self.auto_backup_if_due(keep)
+        folder = (settings.get("backup_copy_folder") or "").strip()
+        if target is None or not folder:
+            return None
+        try:
+            self.copy_to_folder(target, folder, keep)
+            return None
+        except BusinessError as exc:
+            log.warning("Backup copy failed: %s", exc, exc_info=True)
+            try:
+                with self.db.session() as s:
+                    audit_service.record(s, None, "BACKUP_COPY_FAILED", "database", None,
+                                         {"folder": folder, "file": target.name},
+                                         username="system")
+            except Exception:
+                log.exception("Could not audit backup copy failure")
+            return (f"Today's backup was saved on this computer, but it could not be copied "
+                    f"to:\n{folder}\n\nConnect the drive (or check the folder) and use "
+                    f"Backup & Restore to make a copy, or change the folder in "
+                    f"Settings \u203a Security & backup.")

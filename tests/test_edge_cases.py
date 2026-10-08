@@ -238,3 +238,37 @@ def test_v1_database_upgrades_and_keeps_data(services, admin, make_product, sell
         assert ret["refund_total"] == Decimal("100")
     finally:
         upgraded.db.dispose()
+
+
+# ---- automatic backups & second copy ------------------------------------------------
+def test_automatic_backup_copied_to_second_folder(services, admin, tmp_path):
+    usb = tmp_path / "USB #1"
+    usb.mkdir()
+    services.settings.update(admin, {"backup_copy_folder": str(usb), "backup_keep_count": 2})
+    settings = services.settings.get_all()
+    assert services.backup.run_automatic(settings) is None
+    assert services.backup.run_automatic(settings) is None      # already done today: no-op
+    for _ in range(3):
+        assert services.backup.run_automatic(settings, on_exit=True) is None
+    copies = services.backup.list_backups(usb)
+    assert len(copies) == 2                                      # pruned to keep count
+    assert services.backup.validate_backup(copies[0]["path"])["business_name"] == "Test Business"
+    assert len([b for b in services.backup.list_backups() if b["kind"] == "auto"]) == 2
+
+
+def test_unavailable_second_folder_warns_but_keeps_local_backup(services, admin, tmp_path):
+    usb = tmp_path / "usb"
+    usb.mkdir()
+    services.settings.update(admin, {"backup_copy_folder": str(usb)})
+    usb.rmdir()                                                  # drive unplugged
+    warning = services.backup.run_automatic(services.settings.get_all(), on_exit=True)
+    assert warning and str(usb) in warning
+    assert any(b["kind"] == "auto" for b in services.backup.list_backups())
+    actions = [r["action"] for r in services.audit.list(admin)[0]]
+    assert "BACKUP_COPY_FAILED" in actions
+
+
+def test_second_folder_must_exist_when_saved(services, admin, tmp_path):
+    with pytest.raises(ValidationError, match="does not exist"):
+        services.settings.update(admin, {"backup_copy_folder": str(tmp_path / "missing")})
+    services.settings.update(admin, {"backup_copy_folder": ""})      # clearing is allowed

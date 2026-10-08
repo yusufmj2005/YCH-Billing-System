@@ -179,13 +179,20 @@ def main() -> int:
 
     try:
         if services.settings.is_setup_completed() and services.settings.get("auto_backup_on_start"):
-            services.backup.auto_backup_if_due(int(services.settings.get("backup_keep_count") or 30))
+            warning = services.backup.run_automatic(services.settings.get_all())
+            if warning:
+                QMessageBox.warning(None, f"{APP_NAME} - backup copy", warning)
     except Exception:
         log.exception("Automatic backup failed")
 
     controller = Controller(app, services)
     controller.start()
     code = app.exec()
+    try:
+        if services.settings.is_setup_completed() and services.settings.get("backup_on_exit"):
+            services.backup.run_automatic(services.settings.get_all(), on_exit=True)
+    except Exception:
+        log.exception("Backup on exit failed")
     services.db.dispose()
     log.info("Exited with code %s", code)
     return code
