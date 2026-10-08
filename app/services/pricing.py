@@ -84,6 +84,16 @@ class CartResult:
         return (self.total_discount * HUNDRED / self.gross_total).quantize(Decimal("0.01"))
 
 
+def _percent(value, message: str) -> Decimal:
+    try:
+        pct = Decimal(str(value))
+    except ArithmeticError:
+        raise ValidationError(message) from None
+    if not pct.is_finite() or pct < 0 or pct > 100:
+        raise ValidationError(message)
+    return pct
+
+
 def _allocate(total: Decimal, weights: list[Decimal]) -> list[Decimal]:
     """Split ``total`` pro-rata over ``weights`` exactly (to the paisa),
     never allocating more than a line's weight."""
@@ -142,9 +152,7 @@ def compute_cart(lines: list[CartLineInput], *, bill_discount_amount: Decimal = 
             raise ValidationError(f"Price for “{ln.name}” cannot be negative.")
         gross = money(price * q)
         if ln.discount_percent is not None:
-            pct = Decimal(ln.discount_percent)
-            if pct < 0 or pct > 100:
-                raise ValidationError("Discount percentage must be between 0 and 100.")
+            pct = _percent(ln.discount_percent, "Discount percentage must be between 0 and 100.")
             disc = money(gross * pct / HUNDRED)
         else:
             disc = money(ln.discount_amount or ZERO)
@@ -158,9 +166,8 @@ def compute_cart(lines: list[CartLineInput], *, bill_discount_amount: Decimal = 
 
     subtotal = sum(nets, ZERO)
     if bill_discount_percent is not None:
-        pct = Decimal(bill_discount_percent)
-        if pct < 0 or pct > 100:
-            raise ValidationError("Bill discount percentage must be between 0 and 100.")
+        pct = _percent(bill_discount_percent,
+                       "Bill discount percentage must be between 0 and 100.")
         bill = money(subtotal * pct / HUNDRED)
     else:
         bill = money(bill_discount_amount or ZERO)

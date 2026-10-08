@@ -140,7 +140,8 @@ class SettingsService:
         if s.scalar(select(Sale.id).where(Sale.invoice_no == candidate)):
             raise ValidationError(f"Invoice number {candidate} has already been used.")
         used_higher = s.scalar(select(Sale.id).where(
-            Sale.invoice_no.like(f"{prefix}%"), Sale.invoice_number >= next_no).limit(1))
+            Sale.invoice_no.startswith(prefix, autoescape=True),
+            Sale.invoice_number >= next_no).limit(1))
         if used_higher:
             raise ValidationError(
                 "The next invoice number must be higher than every invoice already issued "

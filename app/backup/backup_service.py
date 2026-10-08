@@ -26,8 +26,14 @@ log = logging.getLogger(__name__)
 BACKUP_GLOB = "BusinessPOS-*.db"
 
 
+def _ro_uri(path: Path) -> str:
+    """Read-only SQLite URI. ``as_uri`` percent-encodes '#', '?' and '%' so
+    folder names containing them are not misparsed as URI syntax."""
+    return f"{Path(path).resolve().as_uri()}?mode=ro"
+
+
 def _copy_db(src_path: Path, dst_path: Path) -> None:
-    src = sqlite3.connect(f"file:{src_path.as_posix()}?mode=ro", uri=True)
+    src = sqlite3.connect(_ro_uri(src_path), uri=True)
     dst = sqlite3.connect(dst_path)
     try:
         src.backup(dst)
@@ -89,7 +95,7 @@ class BackupService:
         if not path.is_file():
             raise ValidationError("The selected backup file does not exist.")
         try:
-            con = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
+            con = sqlite3.connect(_ro_uri(path), uri=True)
         except sqlite3.Error:
             raise ValidationError("The selected file is not a valid BusinessPOS backup.") from None
         try:

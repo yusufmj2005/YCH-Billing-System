@@ -61,6 +61,8 @@ def decimal(value, label: str, *, required: bool = True, min_value=None, max_val
         raise ValidationError(f"{label} must be a number.") from None
     if not v.is_finite():
         raise ValidationError(f"{label} must be a number.")
+    if v and v.adjusted() >= 15:  # far beyond any real amount; also keeps quantize in range
+        raise ValidationError(f"{label} is too large.")
     if v.as_tuple().exponent < -places and v != v.quantize(Decimal(1).scaleb(-places)):
         raise ValidationError(f"{label} allows at most {places} decimal places.")
     if not allow_zero and v == 0:
