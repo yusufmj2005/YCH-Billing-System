@@ -22,6 +22,9 @@ Billing · GST invoices · Stock · Purchases · Returns · Reports · Staff · 
 
 <p align="center"><img src="docs/images/pos.png" alt="POS / Billing screen" width="900"></p>
 
+<p align="center"><img src="docs/images/readme-about.svg" width="100%"
+alt="About BusinessPOS. Built for: retail shops in India, made for a yarn and crochet store (yarn, hooks, needles, kits and handmade goods). Focus: fast GST billing, accurate stock, returns that add up and reports that agree, fully offline on one PC. Currently: v1.0.1 is out with 162 automated tests, an install-tested Windows installer, CSV import and off-site backups."></p>
+
 BusinessPOS is a desktop application that runs the day-to-day work of a retail
 shop. It was built for a shop selling yarn, crochet hooks, knitting needles,
 accessories, project kits and handmade products, but it is not tied to those
@@ -50,17 +53,8 @@ Windows program; you do not need Python or any technical tools.
 
 ## Highlights
 
-| | |
-|---|---|
-| 🧾 **Fast billing** | Scan or search, item and bill discounts, split payments (cash, UPI, cards, bank, custom). Keyboard shortcuts for every step. |
-| 🏷️ **GST-ready invoices** | CGST + SGST or IGST, prices with or without tax, optional round-off, HSN codes. A4 and 80 mm receipt PDFs. Invoice numbers that are never reused. |
-| 📦 **Accurate stock** | Every change is written to a stock ledger: sale, return, purchase, adjustment, void. Negative stock is blocked. Low-stock alerts. |
-| 📥 **Quick set-up** | Import your whole product list and opening stock from Excel. Every row is checked before anything is saved. |
-| ↩️ **Correct returns** | Returns only against the original invoice. Refunds add up exactly to what the customer paid. Damaged items can be kept out of stock. |
-| 📊 **Reports that agree** | Sales, tax, stock, purchases, expenses, profit & loss. Exported to PDF and CSV. Automated tests check that every report agrees with the others. |
-| 👥 **Staff and permissions** | Roles for Administrator, Manager, Cashier and Inventory Staff, with 37 separate permissions. Attendance, leave and payroll records. |
-| 🔒 **Safe by design** | All-or-nothing transactions, a read-only audit log, records that can't be deleted, encrypted passwords and account lockout. |
-| 💾 **Automatic backups** | Backups at start-up and when the app closes, plus an optional second copy on a USB drive or OneDrive / Google Drive. |
+<p align="center"><img src="docs/images/readme-highlights.svg" width="100%"
+alt="Highlights. Fast billing: scan or search, item and bill discounts, split payments, keyboard shortcuts. GST-ready invoices: CGST + SGST or IGST, HSN codes, round-off, A4 and 80 mm receipts, invoice numbers never reused. Accurate stock: a ledger entry for every change, negative stock blocked, low-stock alerts, valuation. Quick set-up: import products and opening stock from Excel, every row checked first. Correct returns: against the original invoice only, refunds add up exactly to what was paid. Reports that agree: sales, tax, stock, purchases, expenses and P&amp;L with PDF and CSV export, all cross-checked. Staff and permissions: four roles, 37 permissions, attendance and payroll. Safe by design: all-or-nothing transactions, read-only audit log, undeletable records, account lockout. Automatic backups: on start-up and on close, plus a second copy on USB or OneDrive / Google Drive."></p>
 
 ## Screenshots
 
@@ -290,7 +284,7 @@ app/
 ├── ui/                  PySide6 windows, pages, dialogs, widgets and theme
 └── utils/               money/date helpers, logging, single-instance mutex
 tests/                   pytest suite (162 tests)
-tools/                   icon generator, version info, demo data, screenshots (development only)
+tools/                   icon generator, version info, demo data, screenshots, README card panels (development only)
 installer/installer.iss  Inno Setup script
 build/                   build_app.bat, build_installer.bat, clean_build.bat
 .github/workflows/       automated test, build, install-test and release

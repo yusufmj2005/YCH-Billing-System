@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="779" viewBox="0 0 1200 779" role="img" aria-label="Highlights">
+<title>Highlights</title>
+<defs>
+<radialGradient id="gTeal" cx="0.08" cy="0.95" r="0.55"><stop offset="0" stop-color="#14b8a6" stop-opacity="0.55"/><stop offset="1" stop-color="#14b8a6" stop-opacity="0"/></radialGradient>
+<radialGradient id="gIndigo" cx="0.52" cy="0.0" r="0.55"><stop offset="0" stop-color="#6366f1" stop-opacity="0.75"/><stop offset="1" stop-color="#6366f1" stop-opacity="0"/></radialGradient>
+<radialGradient id="gPurple" cx="0.95" cy="0.95" r="0.5"><stop offset="0" stop-color="#a855f7" stop-opacity="0.55"/><stop offset="1" stop-color="#a855f7" stop-opacity="0"/></radialGradient>
+<linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.13"/><stop offset="1" stop-color="#ffffff" stop-opacity="0.05"/></linearGradient>
+<linearGradient id="edge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.32"/><stop offset="1" stop-color="#ffffff" stop-opacity="0.08"/></linearGradient>
+<linearGradient id="rule" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2dd4bf"/><stop offset="1" stop-color="#818cf8"/></linearGradient>
+<filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity="0.35"/></filter>
+<clipPath id="panel"><rect width="1200" height="779" rx="26"/></clipPath>
+<linearGradient id="t_teal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5eead4"/><stop offset="1" stop-color="#0f9488"/></linearGradient>
+<filter id="glow_teal" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0f9488" flood-opacity="0.55"/></filter>
+<linearGradient id="t_blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient>
+<filter id="glow_blue" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#1d4ed8" flood-opacity="0.55"/></filter>
+<linearGradient id="t_purple" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c084fc"/><stop offset="1" stop-color="#6d28d9"/></linearGradient>
+<filter id="glow_purple" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#6d28d9" flood-opacity="0.55"/></filter>
+</defs>
+<g clip-path="url(#panel)">
+<rect width="1200" height="779" fill="#0b0d1a"/>
+<rect width="1200" height="779" fill="url(#gIndigo)"/>
+<rect width="1200" height="779" fill="url(#gTeal)"/>
+<rect width="1200" height="779" fill="url(#gPurple)"/>
+</g>
+<rect x="0.5" y="0.5" width="1199" height="778" rx="26" fill="none" stroke="#ffffff" stroke-opacity="0.08"/>
+<text x="44" y="58" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="3" fill="#2dd4bf">FEATURES</text>
+<text x="44" y="96" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="34" font-weight="700" fill="#ffffff">Highlights</text>
+<rect x="44" y="108" width="44" height="3" rx="1.5" fill="url(#rule)"/>
+<g filter="url(#shadow)"><rect x="44.0" y="132.0" width="354.7" height="185" rx="18" fill="url(#glass)"/></g>
+<rect x="44.5" y="132.5" width="353.7" height="184" rx="18" fill="none" stroke="url(#edge)"/>
+<g filter="url(#glow_teal)"><rect x="70.0" y="158" width="48" height="48" rx="12" fill="url(#t_teal)"/></g>
+<rect x="71.0" y="159" width="46" height="23.0" rx="11" fill="#ffffff" fill-opacity="0.16"/>
+<g transform="translate(82.0 170) scale(1)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 7v10"/><path d="M12 7v10"/><path d="M17 7v10"/></g>
+<text x="134.0" y="189.0" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Fast billing</text>
+<text font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#cbd5e1" fill-opacity="0.92">
+<tspan x="70.0" y="240">Scan or search, item and bill</tspan>
+<tspan x="70.0" y="263">discounts, split payments and keyboard</tspan>
+<tspan x="70.0" y="286">shortcuts for every step.</tspan>
+</text>
+<g filter="url(#shadow)"><rect x="422.7" y="132.0" width="354.7" height="185" rx="18" fill="url(#glass)"/></g>
+<rect x="423.2" y="132.5" width="353.7" height="184" rx="18" fill="none" stroke="url(#edge)"/>
+<g filter="url(#glow_blue)"><rect x="448.7" y="158" width="48" height="48" rx="12" fill="url(#t_blue)"/></g>
+<rect x="449.7" y="159" width="46" height="23.0" rx="11" fill="#ffffff" fill-opacity="0.16"/>
+<g transform="translate(460.7 170) scale(1)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></g>
+<text x="512.7" y="189.0" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">GST-ready invoices</text>
+<text font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#cbd5e1" fill-opacity="0.92">
+<tspan x="448.7" y="240">CGST + SGST or IGST, HSN codes,</tspan>
+<tspan x="448.7" y="263">round-off. A4 and 80 mm receipts.</tspan>
+<tspan x="448.7" y="286">Numbers are never reused.</tspan>
+</text>
+<g filter="url(#shadow)"><rect x="801.3" y="132.0" width="354.7" height="185" rx="18" fill="url(#glass)"/></g>
+<rect x="801.8" y="132.5" width="353.7" height="184" rx="18" fill="none" stroke="url(#edge)"/>
+<g filter="url(#glow_purple)"><rect x="827.3" y="158" width="48" height="48" rx="12" fill="url(#t_purple)"/></g>
+<rect x="828.3" y="159" width="46" height="23.0" rx="11" fill="#ffffff" fill-opacity="0.16"/>
+<g transform="translate(839.3 170) scale(1)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></g>
+<text x="891.3" y="189.0" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Accurate stock</text>
+<text font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#cbd5e1" fill-opacity="0.92">
+<tspan x="827.3" y="240">A ledger entry for every change.</tspan>
+<tspan x="827.3" y="263">Negative stock blocked, low-stock</tspan>
+<tspan x="827.3" y="286">alerts, valuation.</tspan>
+</text>
+<g filter="url(#shadow)"><rect x="44.0" y="341.0" width="354.7" height="185" rx="18" fill="url(#glass)"/></g>
+<rect x="44.5" y="341.5" width="353.7" height="184" rx="18" fill="none" stroke="url(#edge)"/>
+<g filter="url(#glow_teal)"><rect x="70.0" y="367" width="48" height="48" rx="12" fill="url(#t_teal)"/></g>
+<rect x="71.0" y="368" width="46" height="23.0" rx="11" fill="#ffffff" fill-opacity="0.16"/>
+<g transform="translate(82.0 379) scale(1)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h2"/><path d="M14 13h2"/><path d="M8 17h2"/><path d="M14 17h2"/></g>
+<text x="134.0" y="398.0" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Quick set-up</text>
+<text font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#cbd5e1" fill-opacity="0.92">
+<tspan x="70.0" y="449">Import products and opening stock from</tspan>
+<tspan x="70.0" y="472">Excel. Every row is checked before</tspan>
+<tspan x="70.0" y="495">anything is saved.</tspan>
+</text>
+<g filter="url(#shadow)"><rect x="422.7" y="341.0" width="354.7" height="185" rx="18" fill="url(#glass)"/></g>
+<rect x="423.2" y="341.5" width="353.7" height="184" rx="18" fill="none" stroke="url(#edge)"/>
+<g filter="url(#glow_blue)"><rect x="448.7" y="367" width="48" height="48" rx="12" fill="url(#t_blue)"/></g>
+<rect x="449.7" y="368" width="46" height="23.0" rx="11" fill="#ffffff" fill-opacity="0.16"/>
+<g transform="translate(460.7 379) scale(1)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5 5.5 5.5 0 0 1-5.5 5.5H11"/></g>
+<text x="512.7" y="398.0" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Correct returns</text>
+<text font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#cbd5e1" fill-opacity="0.92">
+<tspan x="448.7" y="449">Against the original invoice only.</tspan>
+<tspan x="448.7" y="472">Refunds add up exactly to what the</tspan>
+<tspan x="448.7" y="495">customer paid.</tspan>
+</text>
+<g filter="url(#shadow)"><rect x="801.3" y="341.0" width="354.7" height="185" rx="18" fill="url(#glass)"/></g>
+<rect x="801.8" y="341.5" width="353.7" height="184" rx="18" fill="none" stroke="url(#edge)"/>
+<g filter="url(#glow_purple)"><rect x="827.3" y="367" width="48" height="48" rx="12" fill="url(#t_purple)"/></g>
+<rect x="828.3" y="368" width="46" height="23.0" rx="11" fill="#ffffff" fill-opacity="0.16"/>
+<g transform="translate(839.3 379) scale(1)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></g>
+<text x="891.3" y="398.0" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Reports that agree</text>
+<text font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#cbd5e1" fill-opacity="0.92">
+<tspan x="827.3" y="449">Sales, tax, stock, purchases, expenses</tspan>
+<tspan x="827.3" y="472">and P&amp;L. PDF and CSV export, all</tspan>
+<tspan x="827.3" y="495">cross-checked.</tspan>
+</text>
+<g filter="url(#shadow)"><rect x="44.0" y="550.0" width="354.7" height="185" rx="18" fill="url(#glass)"/></g>
+<rect x="44.5" y="550.5" width="353.7" height="184" rx="18" fill="none" stroke="url(#edge)"/>
+<g filter="url(#glow_teal)"><rect x="70.0" y="576" width="48" height="48" rx="12" fill="url(#t_teal)"/></g>
+<rect x="71.0" y="577" width="46" height="23.0" rx="11" fill="#ffffff" fill-opacity="0.16"/>
+<g transform="translate(82.0 588) scale(1)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></g>
+<text x="134.0" y="607.0" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Staff &amp; permissions</text>
+<text font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#cbd5e1" fill-opacity="0.92">
+<tspan x="70.0" y="658">Admin, Manager, Cashier and Inventory</tspan>
+<tspan x="70.0" y="681">roles with 37 permissions. Attendance</tspan>
+<tspan x="70.0" y="704">and payroll.</tspan>
+</text>
+<g filter="url(#shadow)"><rect x="422.7" y="550.0" width="354.7" height="185" rx="18" fill="url(#glass)"/></g>
+<rect x="423.2" y="550.5" width="353.7" height="184" rx="18" fill="none" stroke="url(#edge)"/>
+<g filter="url(#glow_blue)"><rect x="448.7" y="576" width="48" height="48" rx="12" fill="url(#t_blue)"/></g>
+<rect x="449.7" y="577" width="46" height="23.0" rx="11" fill="#ffffff" fill-opacity="0.16"/>
+<g transform="translate(460.7 588) scale(1)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></g>
+<text x="512.7" y="607.0" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Safe by design</text>
+<text font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#cbd5e1" fill-opacity="0.92">
+<tspan x="448.7" y="658">All-or-nothing transactions, read-only</tspan>
+<tspan x="448.7" y="681">audit log, undeletable records,</tspan>
+<tspan x="448.7" y="704">account lockout.</tspan>
+</text>
+<g filter="url(#shadow)"><rect x="801.3" y="550.0" width="354.7" height="185" rx="18" fill="url(#glass)"/></g>
+<rect x="801.8" y="550.5" width="353.7" height="184" rx="18" fill="none" stroke="url(#edge)"/>
+<g filter="url(#glow_purple)"><rect x="827.3" y="576" width="48" height="48" rx="12" fill="url(#t_purple)"/></g>
+<rect x="828.3" y="577" width="46" height="23.0" rx="11" fill="#ffffff" fill-opacity="0.16"/>
+<g transform="translate(839.3 588) scale(1)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></g>
+<text x="891.3" y="607.0" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Automatic backups</text>
+<text font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#cbd5e1" fill-opacity="0.92">
+<tspan x="827.3" y="658">On start-up and on close, plus a</tspan>
+<tspan x="827.3" y="681">second copy on USB or OneDrive /</tspan>
+<tspan x="827.3" y="704">Google Drive.</tspan>
+</text>
+</svg>

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="361" viewBox="0 0 1200 361" role="img" aria-label="About">
+<title>About</title>
+<defs>
+<radialGradient id="gTeal" cx="0.08" cy="0.95" r="0.55"><stop offset="0" stop-color="#14b8a6" stop-opacity="0.55"/><stop offset="1" stop-color="#14b8a6" stop-opacity="0"/></radialGradient>
+<radialGradient id="gIndigo" cx="0.52" cy="0.0" r="0.55"><stop offset="0" stop-color="#6366f1" stop-opacity="0.75"/><stop offset="1" stop-color="#6366f1" stop-opacity="0"/></radialGradient>
+<radialGradient id="gPurple" cx="0.95" cy="0.95" r="0.5"><stop offset="0" stop-color="#a855f7" stop-opacity="0.55"/><stop offset="1" stop-color="#a855f7" stop-opacity="0"/></radialGradient>
+<linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.13"/><stop offset="1" stop-color="#ffffff" stop-opacity="0.05"/></linearGradient>
+<linearGradient id="edge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.32"/><stop offset="1" stop-color="#ffffff" stop-opacity="0.08"/></linearGradient>
+<linearGradient id="rule" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2dd4bf"/><stop offset="1" stop-color="#818cf8"/></linearGradient>
+<filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity="0.35"/></filter>
+<clipPath id="panel"><rect width="1200" height="361" rx="26"/></clipPath>
+<linearGradient id="t_teal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5eead4"/><stop offset="1" stop-color="#0f9488"/></linearGradient>
+<filter id="glow_teal" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0f9488" flood-opacity="0.55"/></filter>
+<linearGradient id="t_blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient>
+<filter id="glow_blue" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#1d4ed8" flood-opacity="0.55"/></filter>
+<linearGradient id="t_purple" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c084fc"/><stop offset="1" stop-color="#6d28d9"/></linearGradient>
+<filter id="glow_purple" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#6d28d9" flood-opacity="0.55"/></filter>
+</defs>
+<g clip-path="url(#panel)">
+<rect width="1200" height="361" fill="#0b0d1a"/>
+<rect width="1200" height="361" fill="url(#gIndigo)"/>
+<rect width="1200" height="361" fill="url(#gTeal)"/>
+<rect width="1200" height="361" fill="url(#gPurple)"/>
+</g>
+<rect x="0.5" y="0.5" width="1199" height="360" rx="26" fill="none" stroke="#ffffff" stroke-opacity="0.08"/>
+<text x="44" y="58" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="3" fill="#2dd4bf">OVERVIEW</text>
+<text x="44" y="96" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="34" font-weight="700" fill="#ffffff">About</text>
+<rect x="44" y="108" width="44" height="3" rx="1.5" fill="url(#rule)"/>
+<g filter="url(#shadow)"><rect x="44.0" y="132.0" width="354.7" height="185" rx="18" fill="url(#glass)"/></g>
+<rect x="44.5" y="132.5" width="353.7" height="184" rx="18" fill="none" stroke="url(#edge)"/>
+<g filter="url(#glow_teal)"><rect x="70.0" y="158" width="48" height="48" rx="12" fill="url(#t_teal)"/></g>
+<rect x="71.0" y="159" width="46" height="23.0" rx="11" fill="#ffffff" fill-opacity="0.16"/>
+<g transform="translate(82.0 170) scale(1)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></g>
+<text x="134.0" y="189.0" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Built for</text>
+<text font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#cbd5e1" fill-opacity="0.92">
+<tspan x="70.0" y="240">Retail shops in India. Made for a yarn</tspan>
+<tspan x="70.0" y="263">and crochet store: yarn, hooks,</tspan>
+<tspan x="70.0" y="286">needles, kits and handmade goods.</tspan>
+</text>
+<g filter="url(#shadow)"><rect x="422.7" y="132.0" width="354.7" height="185" rx="18" fill="url(#glass)"/></g>
+<rect x="423.2" y="132.5" width="353.7" height="184" rx="18" fill="none" stroke="url(#edge)"/>
+<g filter="url(#glow_blue)"><rect x="448.7" y="158" width="48" height="48" rx="12" fill="url(#t_blue)"/></g>
+<rect x="449.7" y="159" width="46" height="23.0" rx="11" fill="#ffffff" fill-opacity="0.16"/>
+<g transform="translate(460.7 170) scale(1)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></g>
+<text x="512.7" y="189.0" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Focus</text>
+<text font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#cbd5e1" fill-opacity="0.92">
+<tspan x="448.7" y="240">Fast GST billing, accurate stock,</tspan>
+<tspan x="448.7" y="263">returns that add up and reports that</tspan>
+<tspan x="448.7" y="286">agree. Fully offline on one PC.</tspan>
+</text>
+<g filter="url(#shadow)"><rect x="801.3" y="132.0" width="354.7" height="185" rx="18" fill="url(#glass)"/></g>
+<rect x="801.8" y="132.5" width="353.7" height="184" rx="18" fill="none" stroke="url(#edge)"/>
+<g filter="url(#glow_purple)"><rect x="827.3" y="158" width="48" height="48" rx="12" fill="url(#t_purple)"/></g>
+<rect x="828.3" y="159" width="46" height="23.0" rx="11" fill="#ffffff" fill-opacity="0.16"/>
+<g transform="translate(839.3 170) scale(1)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></g>
+<text x="891.3" y="189.0" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Currently</text>
+<text font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#cbd5e1" fill-opacity="0.92">
+<tspan x="827.3" y="240">v1.0.1 is out: 162 automated tests, an</tspan>
+<tspan x="827.3" y="263">install-tested Windows installer, CSV</tspan>
+<tspan x="827.3" y="286">import and off-site backups.</tspan>
+</text>
+</svg>
