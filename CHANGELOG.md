@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.1.0
+
+New features for everyday billing, tax filing and data safety. No database
+changes; installing over 1.0.x keeps all data.
+
+### Added
+- **UPI QR at checkout.** Set your UPI ID in Settings › Payments. With UPI
+  selected at checkout, *Show UPI QR* displays a code for the exact amount that
+  any UPI app can scan, with no gateway and no fees. *Payment received* records it
+  (split payments work too).
+- **GSTR-1 working reports** (Reports › GST returns): B2B invoices, B2C summary,
+  credit notes for registered customers, HSN summary (B2B/B2C) and documents
+  issued. Built from the tax recorded on each invoice line, they reconcile exactly
+  with the tax summary. Export to CSV or PDF for your accountant.
+- **Backup password** (Settings › Security & backup). Every backup, including
+  the second copy on USB or cloud, is encrypted with AES-256. Restoring on another
+  computer asks for the password; a wrong password or a damaged file is
+  rejected. Restoring an older backup keeps this computer's password setting.
+- **Find the original invoice when the receipt is lost** (Returns › Find
+  invoice). Search recent invoices by product name, SKU, barcode, customer name
+  or phone. The return stays linked to the invoice, as GST credit notes require.
+
+### Changed
+- New dependency: `cryptography` 50.0.2 (with `cffi` and `pycparser`), listed
+  in THIRD-PARTY-NOTICES.md. The installed program's self-test now also checks
+  an encrypted backup and UPI QR generation.
+
 ## 1.0.2
 
 Publisher and signing update. No database changes; installing over 1.0.1 keeps all data.

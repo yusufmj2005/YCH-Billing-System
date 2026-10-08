@@ -74,8 +74,8 @@ PANELS = {
              "Fast GST billing, accurate stock, returns that add up and reports that agree. "
              "Fully offline on one PC."),
             ("purple", "target", "Currently",
-             "v1.0.2 is out: 162 automated tests, an install-tested Windows installer, CSV "
-             "import and off-site backups."),
+             "v1.1.0 is out: UPI QR payments, GSTR-1 reports, encrypted backups and "
+             "lost-receipt returns."),
         ],
     },
     "readme-highlights.svg": {
@@ -83,11 +83,11 @@ PANELS = {
         "title": "Highlights",
         "cards": [
             ("teal", "scan", "Fast billing",
-             "Scan or search, item and bill discounts, split payments and keyboard shortcuts "
-             "for every step."),
+             "Scan or search, discounts, split payments and a UPI QR with the exact amount "
+             "for any UPI app."),
             ("blue", "receipt", "GST-ready invoices",
-             "CGST + SGST or IGST, HSN codes, round-off. A4 and 80 mm receipts. Numbers are "
-             "never reused."),
+             "CGST + SGST or IGST, HSN codes, A4 and 80 mm receipts, plus GSTR-1 reports "
+             "for your accountant."),
             ("purple", "package", "Accurate stock",
              "A ledger entry for every change. Negative stock blocked, low-stock alerts, "
              "valuation."),
@@ -95,8 +95,8 @@ PANELS = {
              "Import products and opening stock from Excel. Every row is checked before "
              "anything is saved."),
             ("blue", "undo", "Correct returns",
-             "Against the original invoice only. Refunds add up exactly to what the customer "
-             "paid."),
+             "Linked to the original invoice, found by product or customer if the receipt "
+             "is lost."),
             ("purple", "chart", "Reports that agree",
              "Sales, tax, stock, purchases, expenses and P&L. PDF and CSV export, all "
              "cross-checked."),
@@ -107,8 +107,8 @@ PANELS = {
              "All-or-nothing transactions, read-only audit log, undeletable records, account "
              "lockout."),
             ("purple", "database", "Automatic backups",
-             "On start-up and on close, plus a second copy on USB or OneDrive / Google "
-             "Drive."),
+             "On start-up and close, a second copy on USB or cloud, optional password "
+             "encryption."),
         ],
     },
 }

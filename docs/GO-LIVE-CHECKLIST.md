@@ -52,6 +52,8 @@ After setup, open **Settings** and review:
   - **round-off** (rounds the bill to the nearest rupee)
   - maximum discount % for staff
 - [ ] **Inventory:** low-stock threshold and units. Keep "allow negative stock" **off**.
+- [ ] **Payments:** enter your shop's **UPI ID** so checkout can show a UPI QR code
+  with the exact amount (test it with a ₹1 payment).
 - [ ] **Security & backup:** see step 6.
 
 ## 4. Users and roles
@@ -88,6 +90,9 @@ After setup, open **Settings** and review:
   - a **OneDrive / Google Drive** folder that syncs to the cloud.
 
   This protects you if the PC fails, is stolen, or is hit by ransomware.
+- [ ] Recommended: **Set backup password…** so every backup (including the USB/cloud
+  copy) is encrypted. Write the password down and keep it somewhere safe: without
+  it, encrypted backups cannot be restored.
 - [ ] Make a manual backup to a USB drive: **Backup & Restore → Back up to…**
 - [ ] **Practise a restore** before go-live, on a spare PC or a second Windows user:
   install, restore that USB backup, sign in, and check the data is there.

@@ -19,7 +19,7 @@ covers that.
 |---|---|
 | Tester | |
 | Date | |
-| BusinessPOS version (shown on the sign-in screen) | 1.0.2 |
+| BusinessPOS version (shown on the sign-in screen) | 1.1.0 |
 | PC / printer / scanner | |
 
 ---
@@ -99,6 +99,18 @@ covers that.
 | H3 | Unplug the USB drive and start BusinessPOS; then close it | A warning about the unavailable backup folder is shown both times. The app still works and the local backup is still made. | |
 | H4 | Backup & Restore → Back up to… the USB drive | A verified backup is created. | |
 | H5 | Make one more sale, then Restore the H4 backup (type RESTORE) | Everyone is signed out. After signing in, that last sale is gone and everything before it is intact. | |
+
+## J. New in 1.1.0
+
+| # | Do this | Expected result | ✔ |
+|---|---|---|---|
+| J1 | Settings › Payments: enter your shop's real UPI ID and payee name → Save UPI | "UPI settings saved". A wrong format such as `shopname` is refused. | |
+| J2 | POS: sell any item, checkout, choose **UPI** → **Show UPI QR**. Scan it with your phone's UPI app **without paying** | The app shows your shop name and the exact bill amount. Cancel on the phone. | |
+| J3 | Pay ₹1 for real (make a ₹1 item), confirm on your soundbox/UPI app, then click **Payment received** | The UPI payment is added; the sale completes with method UPI. | |
+| J4 | Reports › GST returns › each GSTR-1 report for today; export one to CSV | Figures match the Tax summary for the same day; the CSV opens in Excel. | |
+| J5 | Settings › Security & backup › **Set backup password…**, then Backup & Restore › Back up now | The new backup ends in `.db.enc` and the list shows Encrypted = Yes. | |
+| J6 | On another PC (or after removing the password), restore that `.db.enc` file | It asks for the backup password; a wrong one is refused, the right one restores. | |
+| J7 | Returns › **Find invoice…**: search by a product sold earlier, or the customer's phone | The invoice appears; choosing it loads it for the return. | |
 
 ## I. Update and uninstall
 

@@ -33,9 +33,9 @@
 <g transform="translate(82.0 170) scale(1)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 7v10"/><path d="M12 7v10"/><path d="M17 7v10"/></g>
 <text x="134.0" y="189.0" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Fast billing</text>
 <text font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#cbd5e1" fill-opacity="0.92">
-<tspan x="70.0" y="240">Scan or search, item and bill</tspan>
-<tspan x="70.0" y="263">discounts, split payments and keyboard</tspan>
-<tspan x="70.0" y="286">shortcuts for every step.</tspan>
+<tspan x="70.0" y="240">Scan or search, discounts, split</tspan>
+<tspan x="70.0" y="263">payments and a UPI QR with the exact</tspan>
+<tspan x="70.0" y="286">amount for any UPI app.</tspan>
 </text>
 <g filter="url(#shadow)"><rect x="422.7" y="132.0" width="354.7" height="185" rx="18" fill="url(#glass)"/></g>
 <rect x="423.2" y="132.5" width="353.7" height="184" rx="18" fill="none" stroke="url(#edge)"/>
@@ -44,9 +44,9 @@
 <g transform="translate(460.7 170) scale(1)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></g>
 <text x="512.7" y="189.0" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">GST-ready invoices</text>
 <text font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#cbd5e1" fill-opacity="0.92">
-<tspan x="448.7" y="240">CGST + SGST or IGST, HSN codes,</tspan>
-<tspan x="448.7" y="263">round-off. A4 and 80 mm receipts.</tspan>
-<tspan x="448.7" y="286">Numbers are never reused.</tspan>
+<tspan x="448.7" y="240">CGST + SGST or IGST, HSN codes, A4 and</tspan>
+<tspan x="448.7" y="263">80 mm receipts, plus GSTR-1 reports</tspan>
+<tspan x="448.7" y="286">for your accountant.</tspan>
 </text>
 <g filter="url(#shadow)"><rect x="801.3" y="132.0" width="354.7" height="185" rx="18" fill="url(#glass)"/></g>
 <rect x="801.8" y="132.5" width="353.7" height="184" rx="18" fill="none" stroke="url(#edge)"/>
@@ -77,9 +77,9 @@
 <g transform="translate(460.7 379) scale(1)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5 5.5 5.5 0 0 1-5.5 5.5H11"/></g>
 <text x="512.7" y="398.0" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Correct returns</text>
 <text font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#cbd5e1" fill-opacity="0.92">
-<tspan x="448.7" y="449">Against the original invoice only.</tspan>
-<tspan x="448.7" y="472">Refunds add up exactly to what the</tspan>
-<tspan x="448.7" y="495">customer paid.</tspan>
+<tspan x="448.7" y="449">Linked to the original invoice, found</tspan>
+<tspan x="448.7" y="472">by product or customer if the receipt</tspan>
+<tspan x="448.7" y="495">is lost.</tspan>
 </text>
 <g filter="url(#shadow)"><rect x="801.3" y="341.0" width="354.7" height="185" rx="18" fill="url(#glass)"/></g>
 <rect x="801.8" y="341.5" width="353.7" height="184" rx="18" fill="none" stroke="url(#edge)"/>
@@ -121,8 +121,8 @@
 <g transform="translate(839.3 588) scale(1)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></g>
 <text x="891.3" y="607.0" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Automatic backups</text>
 <text font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#cbd5e1" fill-opacity="0.92">
-<tspan x="827.3" y="658">On start-up and on close, plus a</tspan>
-<tspan x="827.3" y="681">second copy on USB or OneDrive /</tspan>
-<tspan x="827.3" y="704">Google Drive.</tspan>
+<tspan x="827.3" y="658">On start-up and close, a second copy</tspan>
+<tspan x="827.3" y="681">on USB or cloud, optional password</tspan>
+<tspan x="827.3" y="704">encryption.</tspan>
 </text>
 </svg>

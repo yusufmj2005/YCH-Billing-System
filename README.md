@@ -9,7 +9,7 @@
 Billing · GST invoices · Stock · Purchases · Returns · Reports · Staff · Backups
 
 [![Test & build installer](https://github.com/yusufmj2005/YCH-Billing-System/actions/workflows/build.yml/badge.svg)](https://github.com/yusufmj2005/YCH-Billing-System/actions/workflows/build.yml)
-![Version](https://img.shields.io/badge/version-1.0.2-2563eb)
+![Version](https://img.shields.io/badge/version-1.1.0-2563eb)
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20(64--bit)-0f172a)
 ![Licence](https://img.shields.io/badge/licence-proprietary-6b7280)
 
@@ -23,7 +23,7 @@ Billing · GST invoices · Stock · Purchases · Returns · Reports · Staff · 
 <p align="center"><img src="docs/images/pos.png" alt="POS / Billing screen" width="900"></p>
 
 <p align="center"><img src="docs/images/readme-about.svg" width="100%"
-alt="About BusinessPOS. Built for: retail shops in India, made for a yarn and crochet store (yarn, hooks, needles, kits and handmade goods). Focus: fast GST billing, accurate stock, returns that add up and reports that agree, fully offline on one PC. Currently: v1.0.2 is out with 162 automated tests, an install-tested Windows installer, CSV import and off-site backups."></p>
+alt="About BusinessPOS. Built for: retail shops in India, made for a yarn and crochet store (yarn, hooks, needles, kits and handmade goods). Focus: fast GST billing, accurate stock, returns that add up and reports that agree, fully offline on one PC. Currently: v1.1.0 is out with UPI QR payments, GSTR-1 reports, encrypted backups and lost-receipt returns."></p>
 
 BusinessPOS is a desktop application that runs the day-to-day work of a retail
 shop. It was built for a shop selling yarn, crochet hooks, knitting needles,
@@ -54,7 +54,7 @@ Windows program; you do not need Python or any technical tools.
 ## Highlights
 
 <p align="center"><img src="docs/images/readme-highlights.svg" width="100%"
-alt="Highlights. Fast billing: scan or search, item and bill discounts, split payments, keyboard shortcuts. GST-ready invoices: CGST + SGST or IGST, HSN codes, round-off, A4 and 80 mm receipts, invoice numbers never reused. Accurate stock: a ledger entry for every change, negative stock blocked, low-stock alerts, valuation. Quick set-up: import products and opening stock from Excel, every row checked first. Correct returns: against the original invoice only, refunds add up exactly to what was paid. Reports that agree: sales, tax, stock, purchases, expenses and P&amp;L with PDF and CSV export, all cross-checked. Staff and permissions: four roles, 37 permissions, attendance and payroll. Safe by design: all-or-nothing transactions, read-only audit log, undeletable records, account lockout. Automatic backups: on start-up and on close, plus a second copy on USB or OneDrive / Google Drive."></p>
+alt="Highlights. Fast billing: scan or search, discounts, split payments and a UPI QR with the exact amount. GST-ready invoices: CGST + SGST or IGST, HSN codes, A4 and 80 mm receipts, plus GSTR-1 reports for your accountant. Accurate stock: a ledger entry for every change, negative stock blocked, low-stock alerts, valuation. Quick set-up: import products and opening stock from Excel, every row checked first. Correct returns: linked to the original invoice, which can be found by product or customer if the receipt is lost. Reports that agree: sales, tax, stock, purchases, expenses and P&amp;L with PDF and CSV export, all cross-checked. Staff and permissions: four roles, 37 permissions, attendance and payroll. Safe by design: all-or-nothing transactions, read-only audit log, undeletable records, account lockout. Automatic backups: on start-up and on close, a second copy on USB or cloud, and optional password encryption."></p>
 
 ## Screenshots
 
@@ -154,6 +154,8 @@ numbers, so totals always add up to the paisa.
   stolen. You are warned if that folder is unavailable.
 - Manual backups to any folder or USB drive.
 - Every backup is verified before it is kept.
+- An optional **backup password** encrypts every backup (AES-256), including the
+  copies on USB or cloud folders. Restoring on another computer asks for it.
 - **Restore** checks the file first, makes a safety backup of the current data,
   and asks you to type `RESTORE` to confirm.
 
@@ -175,21 +177,21 @@ numbers, so totals always add up to the paisa.
 | First-time setup | Wizard for business details and logo, administrator account, invoice numbering, tax rates and payment methods. Nothing is pre-filled with business data |
 | Dashboard | Sales, transactions, expenses, refunds, inventory value, active and low-stock products, payments by method, 14-day sales chart, recent sales and purchases, date filter |
 | POS / Billing | Search or scan (USB keyboard-wedge scanners), quantity edits, item and bill discounts (amount or %), CGST/SGST or IGST, optional round-off, walk-in or named customer, keyboard shortcuts |
-| Payments | Cash, UPI, Debit Card, Credit Card, Bank Transfer, Other and custom methods. Optional reference ID. Split payments; totals must equal the invoice. Card-number-like references are rejected |
+| Payments | Cash, UPI, Debit Card, Credit Card, Bank Transfer, Other and custom methods. **UPI QR code** with the exact amount at checkout (any UPI app; no gateway). Optional reference ID. Split payments; totals must equal the invoice. Card-number-like references are rejected |
 | Invoices | Unique, gap-free numbering with configurable prefix and start number. A4 and 80 mm receipt PDFs. Printing through Windows printers, reprint, save as PDF |
 | Sales | Filters by date, customer, payment method and status. Controlled voiding (permission + reason; stock restored; payments voided; number never reused) |
-| Returns | Against the original invoice only; can't exceed what is still returnable. Pro-rata refund including tax. The return that completes an invoice also gives back the invoice round-off, so refunds equal the amount paid. Split refunds; "not restocked" for damaged items; return note PDF |
+| Returns | Against the original invoice, which can be **found by product, SKU, barcode or customer** when the receipt is lost; can't exceed what is still returnable. Pro-rata refund including tax. The return that completes an invoice also gives back the invoice round-off, so refunds equal the amount paid. Split refunds; "not restocked" for damaged items; return note PDF |
 | Products & categories | **Bulk import from CSV/Excel** (validated, all-or-nothing). Create, edit, search, filter, deactivate. Unique SKU and barcode, HSN/SAC, cost/selling price, tax rate, prices with or without tax, units, fractional quantities, minimum stock, product image |
 | Barcodes & labels | Manual entry or generated (Code 128 or EAN-13 with in-store prefix 20–29). Label sheets: A4 3×8, A4 4×10, single-label printers |
 | Inventory | Ledger of every change (purchase, sale, return, adjustment in/out, sale void, purchase cancel). Adjustments (add, remove, set to counted quantity) with a required reason. Low-stock alerts, valuation. Negative stock blocked by default |
 | Purchases & suppliers | Draft → complete (adds stock) → cancel (reverses stock). Discounts, tax, optional cost-price update. Supplier payments with paid/partial/unpaid status. Supplier history |
 | Customers | Customer records and purchase history, net of refunds |
 | Expenses | Configurable categories, payment method, reference, voiding with reason |
-| Reports | Daily/weekly/monthly sales, sales register, product/category/payment-method sales, tax summary, current and low stock, stock movement, valuation, purchase registers, expense reports, profit & loss, monthly revenue/purchases/expenses, payment-method summary. CSV and PDF export |
+| Reports | Daily/weekly/monthly sales, sales register, product/category/payment-method sales, tax summary, current and low stock, stock movement, valuation, purchase registers, expense reports, profit & loss, monthly revenue/purchases/expenses, payment-method summary. **GSTR-1 working reports**: B2B, B2C, credit notes, HSN summary, documents issued. CSV and PDF export |
 | Staff | Employees, daily attendance, leave (configurable types, approve/reject), internal payroll records with optional posting to expenses |
 | Users & permissions | Users and editable roles (Administrator, Manager, Cashier, Inventory Staff); 37 permissions enforced in the business logic, not just by hiding buttons |
 | Audit log | Sign-ins, sales, voids, returns, purchases, stock adjustments, price changes, settings, users, permissions, backups and restores. Read-only |
-| Backup & restore | Automatic backups at start-up and on close, optional second copy folder, manual backups, integrity validation, typed confirmation, safety backup before every restore |
+| Backup & restore | Automatic backups at start-up and on close, optional second copy folder, **optional backup password (AES-256 encryption)**, manual backups, integrity validation, typed confirmation, safety backup before every restore |
 
 **How profit & loss is calculated**
 
@@ -245,17 +247,17 @@ folder:
   - credit or partially-paid sales (every sale is fully paid at checkout)
   - customer store credit
   - returns to suppliers (a completed purchase can only be cancelled as a whole)
-  - returns without the original invoice
-- **No payment processing:** UPI, card and bank methods record how the customer
-  paid. BusinessPOS doesn't connect to payment terminals or gateways.
-- **Tax:** no GST e-invoicing (IRN/QR), e-way bills or return-filing exports. The
-  rates are the ones you configure.
+- **Returns need the original invoice**, as GST credit notes must reference it. If the
+  receipt is lost, find the invoice by product or customer.
+- **No payment processing:** the UPI QR goes straight to your bank, and the cashier
+  confirms receipt. BusinessPOS doesn't connect to payment terminals or gateways.
+- **Tax:** GSTR-1 *working reports* for your accountant, but no GST portal upload
+  file, e-invoicing (IRN/QR) or e-way bills. The rates are the ones you configure.
 - **Payroll** is record-keeping only. There are no PF, ESI, professional tax or TDS
   calculations.
 - **Inventory valuation** uses the current cost price, not FIFO or weighted average.
 - **One computer:** SQLite on a single PC, one signed-in user at a time. There is no
   multi-counter network mode or cloud sync.
-- **Backups are not encrypted.** Keep copies somewhere secure.
 - **Unsigned installer (for now):** SmartScreen warns when the installer is run. Releases are signed automatically once a code-signing certificate is added; see [docs/CODE-SIGNING.md](docs/CODE-SIGNING.md).
 - **Hardware:** scanners must use keyboard (HID) mode. Printing uses standard
   Windows printer drivers. Specific printer and scanner models have not been
