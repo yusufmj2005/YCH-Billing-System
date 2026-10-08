@@ -132,17 +132,64 @@ def test_partial_returns_add_up_to_line_total(services, admin, make_product, sel
         services.returns.preview(admin, res["sale_id"], line)
 
 
-@pytest.mark.xfail(strict=True, reason="Known bug: refunds ignore invoice round-off, so a "
-                                       "rounded-down sale refunds more than was paid")
-def test_full_return_never_refunds_more_than_paid(services, admin, make_product, sell):
+def _return(services, admin, methods, sale_id, item_id, qty):
+    line = [ReturnLineRequest(item_id, Decimal(qty))]
+    refund = services.returns.preview(admin, sale_id, line)["refund_total"]
+    return services.returns.create_return(admin, ReturnRequest(
+        sale_id, line, "edge case", [PaymentRequest(methods[PaymentKind.CASH], refund)]))
+
+
+@pytest.mark.parametrize("price, paid, round_off", [
+    ("100.40", "100", "-0.40"),   # rounded down: must not refund 100.40
+    ("99.60", "100", "0.40"),     # rounded up: customer gets back the full 100
+    ("100.00", "100", "0.00"),
+])
+def test_full_return_refunds_exactly_what_was_paid(services, admin, make_product, sell, methods,
+                                                   price, paid, round_off):
     services.settings.update(admin, {"round_off_total": True})
-    pid = make_product(price="100.40", stock="5")
+    pid = make_product(price=price, stock="5")
     res = sell([(pid, 1)])
-    assert res["grand_total"] == Decimal("100")
+    assert res["grand_total"] == Decimal(paid)
     item = services.sales.get_sale(admin, res["sale_id"])["items"][0]
-    refund = services.returns.preview(
-        admin, res["sale_id"], [ReturnLineRequest(item["id"], Decimal(1))])["refund_total"]
-    assert refund <= res["grand_total"]
+    ret = _return(services, admin, methods, res["sale_id"], item["id"], 1)
+    assert ret["refund_total"] == Decimal(paid)
+    detail = services.returns.get_return(admin, ret["return_id"])
+    assert detail["round_off"] == Decimal(round_off)
+    assert detail["refund_total"] == (detail["taxable_total"] + detail["tax_total"]
+                                      + detail["round_off"])
+
+
+def test_round_off_refunded_only_by_the_completing_return(services, admin, make_product, sell,
+                                                          methods, taxes):
+    services.settings.update(admin, {"round_off_total": True})
+    a = make_product(price="10.30", stock="10", tax_id=taxes["Test GST 12"], inclusive=True)
+    b = make_product(price="5.15", stock="10")
+    res = sell([(a, 2), (b, 1)])                    # 25.75 -> paid 26
+    sale = services.sales.get_sale(admin, res["sale_id"])
+    assert sale["round_off"] == Decimal("0.25")
+    ia, ib = (it["id"] for it in sale["items"])
+    r1 = _return(services, admin, methods, res["sale_id"], ia, 1)
+    r2 = _return(services, admin, methods, res["sale_id"], ib, 1)
+    r3 = _return(services, admin, methods, res["sale_id"], ia, 1)  # completes the invoice
+    rounds = [services.returns.get_return(admin, r["return_id"])["round_off"] for r in (r1, r2, r3)]
+    assert rounds == [Decimal(0), Decimal(0), Decimal("0.25")]
+    assert sum(r["refund_total"] for r in (r1, r2, r3)) == res["grand_total"]
+
+
+def test_profit_loss_is_zero_after_full_return_of_rounded_sale(services, admin, make_product,
+                                                               sell, methods):
+    from datetime import date
+    services.settings.update(admin, {"round_off_total": True})
+    pid = make_product(price="100.40", cost="60", stock="5")
+    res = sell([(pid, 1)])
+    item = services.sales.get_sale(admin, res["sale_id"])["items"][0]
+    _return(services, admin, methods, res["sale_id"], item["id"], 1)
+    with services.db.session() as s:
+        f = services.reports.profit_loss_figures(s, date.today(), date.today())
+    assert f["net_sales"] == 0
+    assert f["round_off"] == 0
+    assert f["gross_profit"] == 0
+    assert f["refund_total"] == f["sales_total"] == Decimal("100")
 
 
 # ---- settings --------------------------------------------------------------------
@@ -163,3 +210,31 @@ def test_backup_and_restore_with_special_chars_in_path(services, admin, tmp_path
     assert services.backup.validate_backup(target)["business_name"] == "Test Business"
     services.backup.restore(admin, target)
     assert services.settings.get("business_name") == "Test Business"
+
+
+def test_v1_database_upgrades_and_keeps_data(services, admin, make_product, sell, methods):
+    """A real schema-v1 database (no returns.round_off) is upgraded in place."""
+    import sqlite3
+    from app.bootstrap import build_services
+    from app.database.migrations import read_meta
+    pid = make_product(price="100.40", stock="5")
+    services.settings.update(admin, {"round_off_total": True})
+    res = sell([(pid, 1)])
+    path = services.paths.database_file
+    services.db.dispose()
+    con = sqlite3.connect(path)
+    con.execute("ALTER TABLE returns DROP COLUMN round_off")
+    con.execute("UPDATE app_meta SET value='1' WHERE key='schema_version'")
+    con.commit()
+    con.close()
+
+    upgraded = build_services(services.paths)
+    try:
+        assert read_meta(upgraded.db)["schema_version"] == "2"
+        assert any("pre-upgrade-v1" in b["name"] for b in upgraded.backup.list_backups())
+        cu = upgraded.auth.login("admin", ADMIN_PASSWORD)
+        item = upgraded.sales.get_sale(cu, res["sale_id"])["items"][0]
+        ret = _return(upgraded, cu, methods, res["sale_id"], item["id"], 1)
+        assert ret["refund_total"] == Decimal("100")
+    finally:
+        upgraded.db.dispose()

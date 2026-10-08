@@ -183,9 +183,12 @@ class ReturnDialog(QDialog):
             self.process_btn.setEnabled(False)
             return
         self.refund_total = prev["refund_total"]
+        breakdown = (f"taxable {fmt_money(prev['taxable_total'])} + tax "
+                     f"{fmt_money(prev['tax_total'])}")
+        if prev["round_off"]:
+            breakdown += f" + invoice round-off {fmt_money(prev['round_off'])}"
         self.refund_lbl.setText(f"Refund total: {self.ctx.money(self.refund_total)}  "
-                                f"(taxable {fmt_money(prev['taxable_total'])} + tax "
-                                f"{fmt_money(prev['tax_total'])})")
+                                f"({breakdown})")
         if len(self.refund_rows) == 1:
             self.refund_rows[0][1].setText(f"{self.refund_total:.2f}")
 

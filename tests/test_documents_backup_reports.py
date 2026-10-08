@@ -118,14 +118,15 @@ def test_migration_runner_upgrades_old_schema(tmp_path, services, admin, monkeyp
     from app.config import constants
     services.db.dispose()
     calls = []
-    monkeypatch.setattr(constants, "SCHEMA_VERSION", 2)
-    monkeypatch.setattr(migrations, "SCHEMA_VERSION", 2)
-    monkeypatch.setitem(migrations.MIGRATIONS, 2, lambda conn: calls.append(
+    nxt = constants.SCHEMA_VERSION + 1
+    monkeypatch.setattr(constants, "SCHEMA_VERSION", nxt)
+    monkeypatch.setattr(migrations, "SCHEMA_VERSION", nxt)
+    monkeypatch.setitem(migrations.MIGRATIONS, nxt, lambda conn: calls.append(
         conn.exec_driver_sql("ALTER TABLE customers ADD COLUMN test_col TEXT")))
     again = build_services(services.paths)
     assert calls
     meta = migrations.read_meta(again.db)
-    assert meta["schema_version"] == "2"
+    assert meta["schema_version"] == str(nxt)
     assert any("pre-upgrade" in b["name"] for b in again.backup.list_backups())
     again.db.dispose()
 
