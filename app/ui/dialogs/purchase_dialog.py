@@ -90,7 +90,7 @@ class PurchaseDialog(QDialog):
         btns.addStretch(1)
         btns.addWidget(button("Cancel", None, self.reject))
         btns.addWidget(button("Save draft", None, lambda: self._save(False)))
-        btns.addWidget(button("Save & complete (add stock)", "success", lambda: self._save(True)))
+        btns.addWidget(button("Save && complete (add stock)", "success", lambda: self._save(True)))
         lay.addLayout(btns)
 
         if purchase:

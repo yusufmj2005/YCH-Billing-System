@@ -79,6 +79,9 @@ class UserService:
                 changes["role"] = [u.role.name, role.name]
                 u.role = role
             if "is_active" in data and bool(data["is_active"]) != u.is_active:
+                if u.role.is_system and not actor.is_admin:
+                    raise ValidationError(
+                        "Only administrators can activate or deactivate administrator accounts.")
                 if not data["is_active"]:
                     if u.id == actor.id:
                         raise ValidationError("You cannot deactivate your own account.")

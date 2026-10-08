@@ -57,7 +57,7 @@ class ReturnService:
             calc = self._calculate(s, sale_id, lines)
             s.rollback()
             return {"refund_total": calc["refund_total"], "taxable_total": calc["taxable_total"],
-                    "tax_total": calc["tax_total"]}
+                    "tax_total": calc["tax_total"], "round_off": calc["round_off"]}
 
     def _calculate(self, s, sale_id: int, lines: list[ReturnLineRequest]) -> dict:
         sale = s.get(Sale, sale_id)
@@ -78,7 +78,7 @@ class ReturnService:
         seen = set()
         out = []
         totals = {"taxable_total": ZERO, "tax_total": ZERO, "refund_total": ZERO,
-                  "cost_total": ZERO}
+                  "cost_total": ZERO, "round_off": ZERO}
         for ln in lines:
             item: SaleItem | None = items.get(ln.sale_item_id)
             if item is None:
@@ -113,6 +113,17 @@ class ReturnService:
             totals["tax_total"] += tax
             totals["refund_total"] += taxable + tax
             totals["cost_total"] += cost if ln.restock else ZERO
+        # The return that brings every line to fully returned also gives back
+        # the invoice round-off, so total refunds equal the amount paid.
+        this_return = {ln["item"].id: ln["quantity"] for ln in out}
+        completes_sale = all(
+            (prev.get(it.id, (ZERO,))[0] or ZERO) + this_return.get(it.id, ZERO) == it.quantity
+            for it in sale.items)
+        if completes_sale and sale.round_off:
+            # never let a negative round-off turn the final refund below zero
+            r_off = max(sale.round_off, -totals["refund_total"])
+            totals["round_off"] = r_off
+            totals["refund_total"] += r_off
         return {"sale": sale, "lines": out, **totals}
 
     def create_return(self, actor: CurrentUser, req: ReturnRequest) -> dict:
@@ -132,7 +143,8 @@ class ReturnService:
                              user_id=actor.id, reason=reason,
                              notes=v.text(req.notes, "Notes", max_len=1000),
                              taxable_total=calc["taxable_total"], tax_total=calc["tax_total"],
-                             refund_total=calc["refund_total"], cost_total=calc["cost_total"])
+                             round_off=calc["round_off"], refund_total=calc["refund_total"],
+                             cost_total=calc["cost_total"])
             s.add(ret)
             s.flush()
             for ln in calc["lines"]:
@@ -158,7 +170,7 @@ class ReturnService:
             s.flush()
             audit_service.record(s, actor, "RETURN_CREATED", "return", ret.id, {
                 "return_no": return_no, "invoice_no": sale.invoice_no,
-                "refund": str(calc["refund_total"]),
+                "refund": str(calc["refund_total"]), "round_off": str(calc["round_off"]),
                 "items": [[ln["item"].product_name, str(ln["quantity"]), ln["restock"]]
                           for ln in calc["lines"]]})
             return {"return_id": ret.id, "return_no": return_no,
@@ -206,7 +218,7 @@ class ReturnService:
                 "customer_phone": r.sale.customer_phone or "",
                 "reason": r.reason, "notes": r.notes or "",
                 "taxable_total": r.taxable_total, "tax_total": r.tax_total,
-                "refund_total": r.refund_total,
+                "round_off": r.round_off, "refund_total": r.refund_total,
                 "user": r.user.full_name or r.user.username if r.user else "",
                 "items": [{"product_name": it.product_name, "quantity": it.quantity,
                            "taxable_amount": it.taxable_amount, "tax_amount": it.tax_amount,

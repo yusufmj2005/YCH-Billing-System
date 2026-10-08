@@ -29,7 +29,8 @@ from app.utils.money import ZERO, money
 
 PROFIT_LOSS_METHOD = [
     "Net sales = taxable value of completed sales (excluding GST) minus taxable value of "
-    "returns, plus invoice round-off adjustments.",
+    "returns, plus invoice round-off adjustments (net of round-off given back when an "
+    "invoice is fully returned).",
     "Cost of goods sold (COGS) = cost price recorded on each sale line at the time of sale, "
     "minus the cost of returned items that were put back into stock.",
     "Gross profit = Net sales - COGS.",
@@ -527,9 +528,10 @@ class ReportService:
             select(func.sum(Sale.taxable_total), func.sum(Sale.tax_total),
                    func.sum(Sale.round_off), func.sum(Sale.cost_total),
                    func.sum(Sale.grand_total), func.count(Sale.id)).where(sale_f)).one()
-        r_taxable, r_tax, r_refund, r_cost = s.execute(
+        r_taxable, r_tax, r_refund, r_cost, r_round_off = s.execute(
             select(func.sum(SaleReturn.taxable_total), func.sum(SaleReturn.tax_total),
-                   func.sum(SaleReturn.refund_total), func.sum(SaleReturn.cost_total))
+                   func.sum(SaleReturn.refund_total), func.sum(SaleReturn.cost_total),
+                   func.sum(SaleReturn.round_off))
             .where(SaleReturn.created_at >= start, SaleReturn.created_at < end)).one()
         expenses = s.scalar(select(func.sum(Expense.amount)).where(
             Expense.is_void.is_(False), Expense.expense_date >= date_from,
@@ -540,7 +542,8 @@ class ReportService:
             .where(Purchase.status == PurchaseStatus.COMPLETED,
                    Purchase.purchase_date >= date_from, Purchase.purchase_date <= date_to)).one()
         p_taxable = z(p_sub) - z(p_disc)
-        net_sales = z(taxable) - z(r_taxable) + z(round_off)
+        round_off = z(round_off) - z(r_round_off)  # net of round-off refunded on returns
+        net_sales = z(taxable) - z(r_taxable) + round_off
         cogs = z(cost) - z(r_cost)
         gross_profit = net_sales - cogs
         net = gross_profit - z(expenses)

@@ -13,6 +13,11 @@ BusinessPOS-Setup.exe → Install → Launch → First-time setup → Use
 End users do **not** need Python, pip, a terminal or any developer tools. The
 database is created automatically on first launch.
 
+**Setting up a shop?** Start with [docs/GO-LIVE-CHECKLIST.md](docs/GO-LIVE-CHECKLIST.md),
+then run [docs/ACCEPTANCE-TEST.md](docs/ACCEPTANCE-TEST.md) on the shop PC.
+Download the installer from the latest green **Test & build installer** run (or a
+Release). See [CHANGELOG.md](CHANGELOG.md) for what changed.
+
 ---
 
 ## 1. Features
@@ -27,7 +32,7 @@ database is created automatically on first launch.
 | Invoices | Unique, gap-free numbering with a configurable prefix and start number. A4 PDF and 80 mm receipt PDF. Printing through Windows printers. Reprint, save as PDF |
 | Sales | Filters by date, customer, payment method and status. Details view. Controlled voiding (permission + reason; stock restored; payments marked void; number never reused) |
 | Returns | Against the original invoice only. Quantity can't exceed what is still returnable. Pro-rata refund incl. tax, split refunds, optional "not restocked" for damaged items. Return note PDF |
-| Products & categories | Create, edit, search, filter, deactivate. SKU (unique, configurable), barcode (always unique), HSN/SAC, cost/selling price, tax rate, inclusive/exclusive pricing, unit, fractional quantities, minimum stock, optional product image |
+| Products & categories | Bulk import from CSV/Excel (validated, all-or-nothing). Create, edit, search, filter, deactivate. SKU (unique, configurable), barcode (always unique), HSN/SAC, cost/selling price, tax rate, inclusive/exclusive pricing, unit, fractional quantities, minimum stock, optional product image |
 | Barcodes | Manual entry, or generated on request (Code 128 or EAN-13 with in-store prefix 20–29). Label PDF sheets (A4 3×8, A4 4×10, single-label printers) |
 | Inventory | Stock ledger for every change (PURCHASE, SALE, RETURN, ADJUSTMENT_IN/OUT, SALE_VOID, PURCHASE_CANCEL). Adjustments (add, remove, set to counted quantity) with a required reason. Low-stock alerts, valuation. Negative stock is blocked by default (configurable) |
 | Purchases & suppliers | Draft, complete (adds stock) and cancel (reverses stock). Discounts, tax, optional cost-price update, supplier payments with paid/partial/unpaid status. Supplier purchase history and products purchased |
@@ -137,7 +142,11 @@ set BUSINESSPOS_DATA_DIR=%CD%\.devdata
 
 ```bat
 .venv\Scripts\python -m pytest -q
+.venv\Scripts\python -m ruff check .
 ```
+
+`pytest.ini` turns leaked database handles into test failures. Every push is tested
+automatically (see section 7).
 
 The suite covers:
 - products (create, edit, search, duplicate SKU and barcode)
@@ -152,6 +161,11 @@ The suite covers:
 - backup, restore and safety backup; reopening an existing database; the migration runner; refusing a newer database
 - reports and profit & loss figures, staff and expenses
 - offscreen UI smoke tests (every page loads, POS cart and scanner flow, cashier navigation)
+- a full business day reconciled across every report, the dashboard and the stock ledger (`tests/test_reconciliation.py`)
+- the setup wizard and sign-in screens: validation, lockout, forced password change
+- refunds on rounded invoices, upgrade of a real v1 database, backups to paths with special characters, second backup copy
+- CSV product import (Excel encodings, every error reported, all-or-nothing)
+- business rules for payment methods, customers/suppliers, expenses, payroll, attendance, leave, roles and purchases
 
 ## 6. Building the executable
 
@@ -161,7 +175,7 @@ build\build_app.bat
 
 The script runs these steps in order:
 1. Clean the previous build.
-2. Create or check `.venv` and install the requirements.
+2. Create or check `.venv` and install the exact pinned versions from `requirements-lock.txt`.
 3. Run the tests.
 4. Write the Windows version info.
 5. Run PyInstaller.
@@ -176,6 +190,21 @@ one-folder build, chosen for fast start-up and fewer antivirus false positives.
 The installer packages the whole folder.
 
 ## 7. Building the installer
+
+**Recommended: the automated build.** Every push runs
+`.github/workflows/build.yml`:
+1. Lint and the full test suite on Linux.
+2. On Windows: `build_installer.bat`, which runs the tests, PyInstaller, the
+   packaged self-test and Inno Setup.
+3. A silent **install** of the produced installer on a clean Windows machine, a
+   self-test of the installed program, and a silent **uninstall**.
+4. The installer and its SHA-256 checksum are uploaded as the
+   **BusinessPOS-Setup** artifact.
+
+Pushing a tag such as `v1.0.1` also publishes a GitHub Release with the
+installer attached. Installers are never committed to the repository.
+
+To build locally instead:
 
 ```bat
 build\build_installer.bat
@@ -211,7 +240,7 @@ Data is per Windows user account.
 
 ## 9. Backup and restore
 
-- **Backup** (Backup & Restore page): uses SQLite's online backup API, so it's safe while the app is running. Each backup is verified with an integrity check before it is kept. You can save it to the default folder or to any folder (USB drive, network share). A daily automatic backup on start-up is enabled by default; it keeps the last 30 and the number is configurable.
+- **Backup** (Backup & Restore page): uses SQLite's online backup API, so it's safe while the app is running. Each backup is verified with an integrity check before it is kept. You can save it to the default folder or to any folder (USB drive, network share). Automatic backups run once a day at start-up and every time the app is closed (both on by default). The last 30 are kept; the number is configurable. Set a **second copy folder** (USB drive or OneDrive/Google Drive folder) in Settings › Security & backup so that every automatic backup is also copied off this disk. You are warned if that folder is unavailable.
 - **Restore:** the file is validated (integrity, BusinessPOS identity, schema version) and a summary of its contents is shown. You must type `RESTORE` to confirm. A safety backup of the current data is created first. If the restore fails, the previous data is put back automatically. Afterwards everyone is signed out.
 
 ## 10. Updating

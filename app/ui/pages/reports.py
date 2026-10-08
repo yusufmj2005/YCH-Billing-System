@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QCheckBox, QComboBox, QFileDialog, QHBoxLayout, QLabel,
+from PySide6.QtWidgets import (QComboBox, QFileDialog, QHBoxLayout, QLabel,
                                QSplitter, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget)
 
 from app.config.constants import MOVEMENT_TYPE_LABELS, Perm

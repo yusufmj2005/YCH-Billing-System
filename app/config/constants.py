@@ -8,12 +8,12 @@ categories, payment methods).
 from __future__ import annotations
 
 APP_NAME = "BusinessPOS"
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.0.1"
 APP_ID = "BusinessPOS"  # used for data folder / mutex names
 APP_MUTEX_NAME = "BusinessPOS_SingleInstance_Mutex"
 
 # Database schema version. Increment when a migration is added.
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 DB_FILENAME = "businesspos.db"
 DB_IDENTIFIER = "BusinessPOS-database"
 

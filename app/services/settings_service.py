@@ -106,7 +106,7 @@ class SettingsService:
                     raise ValidationError("Invalid tax mode.")
             elif key in ("auto_print_invoice", "round_off_total", "default_price_includes_tax",
                          "allow_negative_stock", "sku_unique", "auto_backup_on_start",
-                         "setup_completed"):
+                         "backup_on_exit", "setup_completed"):
                 value = bool(value)
             elif key == "low_stock_threshold":
                 value = str(v.decimal(value, "Low-stock threshold", min_value=0, places=3))
@@ -129,6 +129,12 @@ class SettingsService:
                     raise ValidationError("Invalid barcode type.")
             elif key == "logo_path":
                 value = value or ""
+            elif key == "backup_copy_folder":
+                value = v.text(value, "Backup copy folder", max_len=500) or ""
+                if value and not Path(value).is_dir():
+                    raise ValidationError(
+                        "The backup copy folder does not exist. Connect the drive or choose "
+                        "another folder.")
             out[key] = value
         return out
 
@@ -140,7 +146,8 @@ class SettingsService:
         if s.scalar(select(Sale.id).where(Sale.invoice_no == candidate)):
             raise ValidationError(f"Invoice number {candidate} has already been used.")
         used_higher = s.scalar(select(Sale.id).where(
-            Sale.invoice_no.like(f"{prefix}%"), Sale.invoice_number >= next_no).limit(1))
+            Sale.invoice_no.startswith(prefix, autoescape=True),
+            Sale.invoice_number >= next_no).limit(1))
         if used_higher:
             raise ValidationError(
                 "The next invoice number must be higher than every invoice already issued "

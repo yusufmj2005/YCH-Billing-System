@@ -14,8 +14,7 @@ from app.services.errors import BusinessError, ValidationError
 from app.services.return_service import ReturnLineRequest, ReturnRequest
 from app.services.sales_service import PaymentRequest
 from app.ui import documents
-from app.ui.widgets.common import (button, confirm, handle_exception, label, show_error,
-                                   show_info)
+from app.ui.widgets.common import (button, confirm, handle_exception, label, show_error)
 from app.ui.widgets.forms import decimal_edit
 from app.utils.dates import fmt_dt
 from app.utils.money import ZERO, fmt_money, fmt_qty, money
@@ -183,9 +182,12 @@ class ReturnDialog(QDialog):
             self.process_btn.setEnabled(False)
             return
         self.refund_total = prev["refund_total"]
+        breakdown = (f"taxable {fmt_money(prev['taxable_total'])} + tax "
+                     f"{fmt_money(prev['tax_total'])}")
+        if prev["round_off"]:
+            breakdown += f" + invoice round-off {fmt_money(prev['round_off'])}"
         self.refund_lbl.setText(f"Refund total: {self.ctx.money(self.refund_total)}  "
-                                f"(taxable {fmt_money(prev['taxable_total'])} + tax "
-                                f"{fmt_money(prev['tax_total'])})")
+                                f"({breakdown})")
         if len(self.refund_rows) == 1:
             self.refund_rows[0][1].setText(f"{self.refund_total:.2f}")
 

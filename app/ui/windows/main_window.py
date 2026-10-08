@@ -6,7 +6,7 @@ import logging
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QAction, QKeySequence, QShortcut
-from PySide6.QtWidgets import (QButtonGroup, QFrame, QHBoxLayout, QLabel, QMainWindow, QMenu,
+from PySide6.QtWidgets import (QButtonGroup, QFrame, QHBoxLayout, QMainWindow, QMenu,
                                QPushButton, QScrollArea, QStackedWidget, QToolButton,
                                QVBoxLayout, QWidget)
 

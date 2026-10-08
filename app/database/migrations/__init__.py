@@ -83,8 +83,15 @@ def protective_triggers() -> list[str]:
     return ddl
 
 
+def _m0002(conn: Connection) -> None:
+    """returns.round_off: invoice round-off refunded by the return that
+    completes an invoice (stored as paise, like every Money column)."""
+    conn.exec_driver_sql(
+        "ALTER TABLE returns ADD COLUMN round_off INTEGER NOT NULL DEFAULT 0")
+
+
 # version -> function(conn) that upgrades from version-1
-MIGRATIONS: dict[int, Callable[[Connection], None]] = {}
+MIGRATIONS: dict[int, Callable[[Connection], None]] = {2: _m0002}
 
 
 def _get_version(conn: Connection) -> int | None:

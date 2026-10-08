@@ -1,0 +1,6 @@
+# Windows scripts must keep CRLF endings (cmd.exe mis-handles labels with LF).
+*.bat text eol=crlf
+*.iss text eol=crlf
+*.py text eol=lf
+*.ico binary
+*.png binary

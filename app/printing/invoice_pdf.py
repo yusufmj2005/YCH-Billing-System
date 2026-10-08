@@ -351,8 +351,10 @@ def build_return_pdf(ret: dict, settings: dict, out_path: Path) -> Path:
     t = Table(rows, colWidths=[width - 100 * mm, 20 * mm, 26 * mm, 26 * mm, 28 * mm])
     t.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, 0), HEAD_BG),
                            ("LINEBELOW", (0, 0), (-1, -1), 0.4, LINE)]))
-    story += [Spacer(1, 3 * mm), t, Spacer(1, 3 * mm),
-              Paragraph(f"<b>Total refund: {cur}{m(ret['refund_total'])}</b>", st["rb"]),
+    story += [Spacer(1, 3 * mm), t, Spacer(1, 3 * mm)]
+    if ret.get("round_off"):
+        story.append(Paragraph(f"Invoice round-off: {cur}{m(ret['round_off'])}", st["r"]))
+    story += [Paragraph(f"<b>Total refund: {cur}{m(ret['refund_total'])}</b>", st["rb"]),
               Spacer(1, 2 * mm), Paragraph(f"Reason: {_esc(ret['reason'])}", st["n"])]
     for r in ret["refunds"]:
         txt = f"Refunded via {_esc(r['method'])}: {cur}{m(r['amount'])}"

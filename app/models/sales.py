@@ -150,6 +150,11 @@ class SaleReturn(Base):
     notes: Mapped[str | None] = mapped_column(Text)
     taxable_total: Mapped[Decimal] = mapped_column(Money(), nullable=False)
     tax_total: Mapped[Decimal] = mapped_column(Money(), nullable=False)
+    # Invoice round-off given back when this return completes the whole invoice,
+    # so that total refunds equal exactly what the customer paid. Included in
+    # refund_total (refund_total = taxable_total + tax_total + round_off).
+    round_off: Mapped[Decimal] = mapped_column(Money(), nullable=False, default=Decimal(0),
+                                               server_default="0")
     refund_total: Mapped[Decimal] = mapped_column(Money(), nullable=False)
     cost_total: Mapped[Decimal] = mapped_column(Money(), nullable=False)
 

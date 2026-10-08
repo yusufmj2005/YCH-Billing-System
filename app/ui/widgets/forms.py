@@ -13,7 +13,7 @@ from typing import Any, Callable
 from PySide6.QtCore import QRegularExpression, Qt
 from PySide6.QtGui import QRegularExpressionValidator
 from PySide6.QtWidgets import (QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFormLayout,
-                               QHBoxLayout, QLabel, QLineEdit, QPlainTextEdit, QVBoxLayout,
+                               QHBoxLayout, QLineEdit, QPlainTextEdit, QVBoxLayout,
                                QWidget)
 
 from app.ui.widgets.common import date_edit, handle_exception, label, pydate, qdate

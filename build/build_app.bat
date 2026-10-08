@@ -27,7 +27,8 @@ if not exist "%PY%" (
     echo ERROR: Python 3.11+ is required on the BUILD machine to create .venv.
     goto :fail
 )
-"%PY%" -m pip install --disable-pip-version-check -q -r requirements.txt || goto :fail
+rem Exact pinned versions so every release is built from the same libraries.
+"%PY%" -m pip install --disable-pip-version-check -q -r requirements-lock.txt || goto :fail
 
 echo [3/5] Running automated tests...
 "%PY%" -m pytest -q || goto :fail
