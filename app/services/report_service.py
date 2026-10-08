@@ -315,6 +315,19 @@ class ReportService:
             notes=["Net of returns in the period. Rates are those configured by the business "
                    "and recorded on each invoice line. This summary is not a tax filing."])
 
+    # =========================== GSTR-1 =========================================
+    def gstr1(self, actor: CurrentUser, section: str, date_from: date,
+              date_to: date) -> ReportResult:
+        """GSTR-1 working reports: b2b, b2c, cdnr, hsn or docs."""
+        from app.services import gst_returns as g
+        require(actor, Perm.VIEW_REPORTS)
+        fn = {"b2b": g.b2b, "b2c": g.b2c, "cdnr": g.credit_notes_b2b, "hsn": g.hsn_summary,
+              "docs": g.documents_issued}.get(section)
+        if fn is None:
+            raise ValidationError("Unknown GSTR-1 section.")
+        with self.db.session() as s:
+            return fn(s, date_from, date_to)
+
     # =========================== INVENTORY ======================================
     def _threshold(self, s) -> Decimal:
         return Decimal(str(get_settings(s).get("low_stock_threshold") or "0"))
