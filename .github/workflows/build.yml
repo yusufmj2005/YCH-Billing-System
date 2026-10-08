@@ -90,7 +90,7 @@ jobs:
           $h = (Get-FileHash installer_output\BusinessPOS-Setup.exe -Algorithm SHA256).Hash
           "$h  BusinessPOS-Setup.exe" | Out-File -Encoding ascii installer_output\BusinessPOS-Setup.exe.sha256
           Get-Content installer_output\BusinessPOS-Setup.exe.sha256
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: BusinessPOS-Setup
           path: |
@@ -108,7 +108,7 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: BusinessPOS-Setup
           path: dist-release
@@ -143,7 +143,7 @@ jobs:
             echo "$section"
           } > release-notes.md
           cat release-notes.md
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
           target_commitish: ${{ github.sha }}
