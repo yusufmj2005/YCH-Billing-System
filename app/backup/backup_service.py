@@ -224,8 +224,14 @@ class BackupService:
         else:
             target = self.auto_backup_if_due(keep)
         folder = (settings.get("backup_copy_folder") or "").strip()
-        if target is None or not folder:
+        if not folder:
             return None
+        if target is None:          # today's backup already exists; still check the folder
+            if Path(folder).is_dir():
+                return None
+            return (f"The second backup folder is not available:\n{folder}\n\n"
+                    f"Connect the drive (or check the folder) so today's backups can be "
+                    f"copied there, or change it in Settings \u203a Security & backup.")
         try:
             self.copy_to_folder(target, folder, keep)
             return None

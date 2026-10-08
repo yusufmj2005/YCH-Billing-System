@@ -190,7 +190,9 @@ def main() -> int:
     code = app.exec()
     try:
         if services.settings.is_setup_completed() and services.settings.get("backup_on_exit"):
-            services.backup.run_automatic(services.settings.get_all(), on_exit=True)
+            warning = services.backup.run_automatic(services.settings.get_all(), on_exit=True)
+            if warning:
+                QMessageBox.warning(None, f"{APP_NAME} - backup copy", warning)
     except Exception:
         log.exception("Backup on exit failed")
     services.db.dispose()

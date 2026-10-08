@@ -266,6 +266,9 @@ def test_unavailable_second_folder_warns_but_keeps_local_backup(services, admin,
     assert any(b["kind"] == "auto" for b in services.backup.list_backups())
     actions = [r["action"] for r in services.audit.list(admin)[0]]
     assert "BACKUP_COPY_FAILED" in actions
+    # a later start the same day (no new backup due) still warns about the missing folder
+    warning = services.backup.run_automatic(services.settings.get_all())
+    assert warning and "not available" in warning
 
 
 def test_second_folder_must_exist_when_saved(services, admin, tmp_path):
