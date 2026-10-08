@@ -20,6 +20,7 @@ from app.services.expense_service import ExpenseService
 from app.services.inventory_service import InventoryService
 from app.services.partner_service import PartnerService
 from app.services.payment_method_service import PaymentMethodService
+from app.services.product_import import ProductImportService
 from app.services.purchase_service import PurchaseService
 from app.services.report_service import ReportService
 from app.services.return_service import ReturnService
@@ -59,6 +60,7 @@ class Services:
     users: UserService
     audit: AuditService
     catalog: CatalogService
+    product_import: ProductImportService
     partners: PartnerService
     payment_methods: PaymentMethodService
     inventory: InventoryService
@@ -82,10 +84,11 @@ def build_services(paths: AppPaths, db: Database | None = None) -> Services:
             db.dispose()  # don't leave the file open when it is refused or fails to upgrade
         raise
     settings = SettingsService(db, paths.attachments_dir)
+    catalog = CatalogService(db, paths.attachments_dir)
     return Services(
         db=db, paths=paths, settings=settings, auth=AuthService(db, settings),
         users=UserService(db), audit=AuditService(db),
-        catalog=CatalogService(db, paths.attachments_dir),
+        catalog=catalog, product_import=ProductImportService(db, catalog),
         partners=PartnerService(db), payment_methods=PaymentMethodService(db),
         inventory=InventoryService(db), sales=SalesService(db), returns=ReturnService(db),
         purchases=PurchaseService(db), expenses=ExpenseService(db), staff=StaffService(db),

@@ -242,24 +242,28 @@ class CatalogService:
     def create_product(self, actor: CurrentUser, data: dict) -> int:
         require(actor, Perm.EDIT_PRODUCTS)
         with self.db.session() as s:
-            clean = self._validate_product(s, data, None)
-            opening = v.decimal(data.get("opening_stock"), "Opening stock", required=False,
-                                min_value=0, places=3) or ZERO
-            if opening and not clean["allow_fractional_qty"] and opening != opening.to_integral_value():
-                raise ValidationError("Opening stock must be a whole number for this product.")
-            p = Product(**clean, current_stock=ZERO)
-            s.add(p)
-            s.flush()
-            if opening > 0:
-                if not actor.has(Perm.ADJUST_INVENTORY):
-                    raise ValidationError(
-                        "You need the 'Adjust stock' permission to enter opening stock.")
-                apply_movement(s, actor, p, opening, MovementType.ADJUSTMENT_IN,
-                               reference_type="ADJUSTMENT", reason="Opening stock",
-                               unit_cost=p.purchase_price)
-            audit_service.record(s, actor, "PRODUCT_CREATED", "product", p.id,
-                                 {"name": p.name, "sku": p.sku, "opening_stock": str(opening)})
-            return p.id
+            return self.insert_product(s, actor, data).id
+
+    def insert_product(self, s, actor: CurrentUser, data: dict) -> Product:
+        """Validate and add one product (plus opening stock) inside session ``s``."""
+        clean = self._validate_product(s, data, None)
+        opening = v.decimal(data.get("opening_stock"), "Opening stock", required=False,
+                            min_value=0, places=3) or ZERO
+        if opening and not clean["allow_fractional_qty"] and opening != opening.to_integral_value():
+            raise ValidationError("Opening stock must be a whole number for this product.")
+        p = Product(**clean, current_stock=ZERO)
+        s.add(p)
+        s.flush()
+        if opening > 0:
+            if not actor.has(Perm.ADJUST_INVENTORY):
+                raise ValidationError(
+                    "You need the 'Adjust stock' permission to enter opening stock.")
+            apply_movement(s, actor, p, opening, MovementType.ADJUSTMENT_IN,
+                           reference_type="ADJUSTMENT", reason="Opening stock",
+                           unit_cost=p.purchase_price)
+        audit_service.record(s, actor, "PRODUCT_CREATED", "product", p.id,
+                             {"name": p.name, "sku": p.sku, "opening_stock": str(opening)})
+        return p
 
     def update_product(self, actor: CurrentUser, product_id: int, data: dict) -> None:
         require(actor, Perm.EDIT_PRODUCTS)

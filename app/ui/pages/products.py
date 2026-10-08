@@ -34,6 +34,7 @@ class ProductsPage(Page):
         bar.addWidget(self.low)
         bar.addStretch(1)
         if ctx.can(Perm.EDIT_PRODUCTS):
+            bar.addWidget(button("Import from CSV…", None, self.import_products))
             bar.addWidget(button("New product", "primary", self.new_product))
         self.root.addLayout(bar)
 
@@ -100,6 +101,14 @@ class ProductsPage(Page):
         if ProductDialog(self, self.ctx).exec():
             self.ctx.toast("Product created")
             self.load(0)
+
+    @ui_action
+    def import_products(self):
+        from app.ui.dialogs.import_dialog import ImportProductsDialog
+        dlg = ImportProductsDialog(self, self.ctx)
+        if dlg.exec() and dlg.imported:
+            self.ctx.toast(f"{dlg.imported} product(s) imported")
+            self.on_show()
 
     @ui_action
     def edit_product(self, row):
