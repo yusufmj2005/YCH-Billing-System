@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (QButtonGroup, QDialog, QFormLayout, QFrame, QGrid
                                QRadioButton, QTableWidget, QTableWidgetItem, QVBoxLayout)
 
 from app.config.constants import PaymentKind
-from app.services.errors import ValidationError
+from app.services.errors import BusinessError, ValidationError
 from app.services.pricing import CartResult
 from app.services.sales_service import PaymentRequest, SaleRequest
 from app.ui import documents
@@ -189,6 +189,9 @@ class CheckoutDialog(QDialog):
         add_row = QHBoxLayout()
         add_row.addWidget(label("Split payment: add each part separately.", "Faint"))
         add_row.addStretch(1)
+        self.upi_btn = button("Show UPI QR", "primary", self._show_upi_qr)
+        self.upi_btn.hide()
+        add_row.addWidget(self.upi_btn)
         add_row.addWidget(button("Add payment", None, self._add_payment))
         lay.addLayout(add_row)
 
@@ -241,6 +244,8 @@ class CheckoutDialog(QDialog):
         self.description.setVisible(req)
         self.lbl_desc.setVisible(req)
         is_cash = pm["kind"] == PaymentKind.CASH
+        self.upi_btn.setVisible(pm["kind"] == PaymentKind.UPI
+                                and bool(self.ctx.settings.get("upi_id")))
         self.cash_received.setVisible(is_cash)
         self.lbl_cash.setVisible(is_cash)
         self.change_lbl.setVisible(is_cash)
@@ -261,6 +266,23 @@ class CheckoutDialog(QDialog):
                                     else f"Short by {self.ctx.money(-diff)}")
         else:
             self.change_lbl.setText("")
+
+    def _show_upi_qr(self) -> None:
+        from app.ui.dialogs.upi_dialog import UpiQrDialog
+        try:
+            amount = Decimal(self.amount.text() or "0")
+        except Exception:  # noqa: BLE001
+            amount = ZERO
+        s = self.ctx.settings
+        try:
+            dlg = UpiQrDialog(self, s.get("upi_id"), s.get("upi_payee_name")
+                              or s.get("business_name") or "", amount,
+                              f"{s.get('business_name') or 'Shop'} bill")
+        except BusinessError as exc:
+            show_error(self, str(exc))
+            return
+        if dlg.exec():
+            self._add_payment()
 
     def _add_payment(self) -> bool:
         pm = self._method()

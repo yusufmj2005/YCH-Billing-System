@@ -165,6 +165,23 @@ class SettingsPage(Page):
                            "customer paid and an optional transaction / reference ID; it never "
                            "stores card numbers, CVV, PINs or bank credentials.", "Notice",
                            wrap=True))
+        upi = QFormLayout()
+        upi.setLabelAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.upi_id = QLineEdit()
+        self.upi_id.setPlaceholderText("e.g. yarnshop@okaxis  (leave blank to turn off)")
+        self.upi_name = QLineEdit()
+        self.upi_name.setMaxLength(50)
+        self.upi_name.setPlaceholderText("Shown to the customer in their UPI app")
+        upi.addRow(label("UPI QR at checkout", "SectionTitle"))
+        upi.addRow("Shop UPI ID", self.upi_id)
+        upi.addRow("Payee name", self.upi_name)
+        upi_row = QHBoxLayout()
+        upi_row.addWidget(label("Checkout shows a QR code with the exact amount; the customer "
+                                "scans it with any UPI app. Money goes straight to your bank.",
+                                "Faint", wrap=True), 1)
+        upi_row.addWidget(button("Save UPI", "primary", self.save_upi))
+        upi.addRow("", upi_row)
+        pl.addLayout(upi)
         bar = QHBoxLayout()
         bar.addStretch(1)
         bar.addWidget(button("Add payment method", "primary", lambda: self.edit_method(None)))
@@ -247,6 +264,8 @@ class SettingsPage(Page):
         self.auto_backup.setChecked(bool(s.get("auto_backup_on_start", True)))
         self.keep.setValue(int(s.get("backup_keep_count", 30)))
         self.exit_backup.setChecked(bool(s.get("backup_on_exit", True)))
+        self.upi_id.setText(s.get("upi_id", ""))
+        self.upi_name.setText(s.get("upi_payee_name", "") or "")
         self.copy_folder.setText(s.get("backup_copy_folder", ""))
         self.load_tax()
         self.load_methods()
@@ -321,6 +340,11 @@ class SettingsPage(Page):
                     "backup_keep_count": self.keep.value(),
                     "backup_copy_folder": self.copy_folder.text()},
                    "Saved (auto sign-out applies from the next sign-in)")
+
+    @ui_action
+    def save_upi(self):
+        self._save({"upi_id": self.upi_id.text(), "upi_payee_name": self.upi_name.text()},
+                   "UPI settings saved")
 
     def _pick_copy_folder(self):
         folder = QFileDialog.getExistingDirectory(self, "Choose the second backup folder",

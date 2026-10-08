@@ -63,6 +63,9 @@ DEFAULT_SETTINGS: dict[str, object] = {
     "backup_keep_count": 30,
     "backup_on_exit": True,
     "backup_copy_folder": "",       # second copy of automatic backups (USB / cloud folder)
+    # UPI QR at checkout (blank = off)
+    "upi_id": "",
+    "upi_payee_name": "",
 }
 
 

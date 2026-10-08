@@ -13,6 +13,7 @@ from app.config.constants import Perm, TaxMode
 from app.database.database import Database
 from app.database.seed import DEFAULT_SETTINGS
 from app.models import Sale, Sequence, Setting
+from app.payments.upi import validate_upi_id
 from app.security.auth import CurrentUser, require
 from app.services import audit_service
 from app.services.errors import ValidationError
@@ -129,6 +130,10 @@ class SettingsService:
                     raise ValidationError("Invalid barcode type.")
             elif key == "logo_path":
                 value = value or ""
+            elif key == "upi_id":
+                value = validate_upi_id(value)
+            elif key == "upi_payee_name":
+                value = v.text(value, "UPI payee name", max_len=50) or ""
             elif key == "backup_copy_folder":
                 value = v.text(value, "Backup copy folder", max_len=500) or ""
                 if value and not Path(value).is_dir():
