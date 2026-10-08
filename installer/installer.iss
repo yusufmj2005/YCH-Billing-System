@@ -15,7 +15,7 @@
 
 #define MyAppName "BusinessPOS"
 #ifndef MyAppVersion
-  #define MyAppVersion "1.0.0"
+  #define MyAppVersion "1.0.1"
 #endif
 ; Publisher shown in "Apps & features". Override: ISCC /DMyAppPublisher="Your Company"
 #ifndef MyAppPublisher

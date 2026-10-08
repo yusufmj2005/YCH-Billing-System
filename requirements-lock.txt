@@ -1,4 +1,4 @@
-﻿# Exact versions used for the verified 1.0.0 build (pip install -r requirements-lock.txt)
+﻿# Exact versions used for the verified release builds (pip install -r requirements-lock.txt)
 altgraph==0.17.5
 bcrypt==5.0.0
 charset-normalizer==3.5.2
