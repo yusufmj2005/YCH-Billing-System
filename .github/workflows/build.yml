@@ -6,6 +6,11 @@ on:
     tags: ["v*"]
   pull_request:
   workflow_dispatch:
+    inputs:
+      publish_release:
+        description: "Publish a GitHub Release (tag vAPP_VERSION) after the build passes"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -50,6 +55,12 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+      - name: Check tag matches APP_VERSION
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $v = python -c "from app.config.constants import APP_VERSION; print(APP_VERSION)"
+          if ("v$v" -ne "${{ github.ref_name }}") { throw "Tag ${{ github.ref_name }} does not match APP_VERSION $v" }
       - name: Ensure Inno Setup 6
         shell: pwsh
         run: |
@@ -90,18 +101,55 @@ jobs:
 
   release:
     name: Publish GitHub release
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.publish_release)
     needs: build-windows
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v5
       - uses: actions/download-artifact@v4
         with:
           name: BusinessPOS-Setup
+          path: dist-release
+      - name: Work out the release tag
+        id: tag
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            echo "tag=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+          else
+            ver=$(python3 -c "import re; print(re.search(r'APP_VERSION = \"([^\"]+)\"', open('app/config/constants.py').read()).group(1))")
+            echo "tag=v$ver" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Release notes from CHANGELOG.md
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          ver="${TAG#v}"
+          section=$(awk -v h="## $ver" '$0==h{p=1;next} /^## /{if(p)exit} p' CHANGELOG.md)
+          if [ -z "$section" ]; then echo "CHANGELOG.md has no '## $ver' section"; exit 1; fi
+          sha=$(cut -d' ' -f1 dist-release/BusinessPOS-Setup.exe.sha256)
+          {
+            echo "## Download"
+            echo
+            echo "Download **BusinessPOS-Setup.exe** below and run it (Windows 10/11, 64-bit)."
+            echo "New installs: follow the [go-live checklist](https://github.com/${GITHUB_REPOSITORY}/blob/${TAG}/docs/GO-LIVE-CHECKLIST.md)."
+            echo "Updating: run the installer over the existing version; your data is kept and backed up automatically."
+            echo
+            echo "SHA-256: \`$sha\`"
+            echo
+            echo "This installer passed the automated tests, a packaged self-test, and an install, self-test and uninstall on a clean Windows machine."
+            echo
+            echo "$section"
+          } > release-notes.md
+          cat release-notes.md
       - uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: BusinessPOS ${{ steps.tag.outputs.tag }}
+          body_path: release-notes.md
+          make_latest: true
           files: |
-            BusinessPOS-Setup.exe
-            BusinessPOS-Setup.exe.sha256
-          generate_release_notes: true
+            dist-release/BusinessPOS-Setup.exe
+            dist-release/BusinessPOS-Setup.exe.sha256
