@@ -28,7 +28,9 @@ half a day, plus the time needed to count your stock.
 - [ ] Set the Windows date, time and time zone correctly. Invoices and reports use them.
 - [ ] Plug in a UPS if you have one. The app writes every sale safely, but a UPS
   avoids interruptions.
-- [ ] Run the installer and launch BusinessPOS.
+- [ ] Run the installer and launch BusinessPOS. If Windows shows *"Windows protected your PC"*,
+  right-click the installer → **Properties** → tick **Unblock** → **OK** and run it again
+  (or click **More info → Run anyway**). See [CODE-SIGNING.md](CODE-SIGNING.md).
 
 ## 3. First-time setup wizard (decide before you start)
 

@@ -50,11 +50,29 @@ jobs:
     env:
       BPOS_NOPAUSE: "1"
       QT_QPA_PLATFORM: offscreen
+      # Releases are code-signed when these SSL.com eSigner secrets exist
+      # (see docs/CODE-SIGNING.md). Ordinary pushes are never signed.
+      IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.publish_release) }}
+      ES_USERNAME: ${{ secrets.ES_USERNAME }}
+      ES_PASSWORD: ${{ secrets.ES_PASSWORD }}
+      ES_TOTP_SECRET: ${{ secrets.ES_TOTP_SECRET }}
+      ES_CREDENTIAL_ID: ${{ secrets.ES_CREDENTIAL_ID }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+      - name: Set up code signing (releases with eSigner secrets only)
+        if: env.IS_RELEASE == 'true' && env.ES_USERNAME != ''
+        shell: pwsh
+        run: |
+          $zip = "$env:RUNNER_TEMP\CodeSignTool.zip"
+          Invoke-WebRequest "https://www.ssl.com/download/codesigntool-for-windows/" -OutFile $zip
+          Expand-Archive $zip "$env:RUNNER_TEMP\CodeSignTool" -Force
+          $bat = Get-ChildItem "$env:RUNNER_TEMP\CodeSignTool" -Recurse -Filter CodeSignTool.bat | Select-Object -First 1
+          if (-not $bat) { throw "CodeSignTool.bat not found in the SSL.com download" }
+          "BPOS_CODESIGNTOOL_DIR=$($bat.DirectoryName)" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+          Write-Host "Code signing enabled for this release build."
       - name: Check tag matches APP_VERSION
         if: startsWith(github.ref, 'refs/tags/v')
         shell: pwsh
@@ -69,6 +87,15 @@ jobs:
       - name: Test, build exe, self-test, compile installer
         shell: cmd
         run: build\build_installer.bat nopause
+      - name: Verify signatures
+        if: env.BPOS_CODESIGNTOOL_DIR != ''
+        shell: pwsh
+        run: |
+          foreach ($f in "dist\BusinessPOS\BusinessPOS.exe", "installer_output\BusinessPOS-Setup.exe") {
+            $s = Get-AuthenticodeSignature $f
+            Write-Host "$f : $($s.Status) - $($s.SignerCertificate.Subject)"
+            if ($s.Status -ne 'Valid') { throw "$f is not validly signed ($($s.Status))" }
+          }
       - name: Install, self-test and uninstall the real installer
         shell: pwsh
         run: |
@@ -81,6 +108,10 @@ jobs:
           $t = Start-Process -Wait -PassThru "$dir\BusinessPOS.exe" -ArgumentList "--self-test"
           Get-Content "$env:TEMP\BusinessPOS-selftest.log"
           if ($t.ExitCode -ne 0) { throw "Installed application self-test failed" }
+          if ($env:BPOS_CODESIGNTOOL_DIR) {
+            $s = Get-AuthenticodeSignature "$dir\unins000.exe"
+            if ($s.Status -ne 'Valid') { throw "The uninstaller is not validly signed ($($s.Status))" }
+          }
           $u = Start-Process -Wait -PassThru "$dir\unins000.exe" -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES"
           if ($u.ExitCode -ne 0) { throw "Uninstaller exited with $($u.ExitCode)" }
           if (Test-Path "$dir\BusinessPOS.exe") { throw "Uninstall left the program behind" }

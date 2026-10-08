@@ -25,7 +25,11 @@ if not defined ISCC (
 
 set /p APPVER=<build\version.tmp
 echo Compiling installer for version %APPVER% ...
-"%ISCC%" /Q /DMyAppVersion=%APPVER% installer\installer.iss || goto :fail
+rem When signing is configured, Inno Setup signs Setup.exe and the uninstaller
+rem through build\sign.bat (kept out of an if-block so paths with brackets work).
+set "ISCC_SIGN="
+if defined BPOS_CODESIGNTOOL_DIR set ISCC_SIGN=/DSIGN "/Sbpos=cmd /c $q$q%CD%\build\sign.bat$q $f$q"
+"%ISCC%" /Q /DMyAppVersion=%APPVER% %ISCC_SIGN% installer\installer.iss || goto :fail
 
 if not exist "installer_output\BusinessPOS-Setup.exe" (
     echo ERROR: installer_output\BusinessPOS-Setup.exe was not produced.

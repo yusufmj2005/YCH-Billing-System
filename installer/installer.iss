@@ -44,6 +44,11 @@ OutputDir=..\installer_output
 OutputBaseFilename=BusinessPOS-Setup
 SetupIconFile=..\assets\icons\app.ico
 LicenseFile=..\LICENSE
+#ifdef SIGN
+; Signed release builds (build_installer.bat passes /DSIGN and the "bpos" sign tool).
+SignTool=bpos
+SignedUninstaller=yes
+#endif
 UninstallDisplayIcon={app}\{#MyAppExeName}
 UninstallDisplayName={#MyAppName}
 WizardStyle=modern

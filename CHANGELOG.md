@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- **Automatic code signing for releases.** Once SSL.com eSigner secrets are added
+  to the repository, release builds sign the program, the installer and the
+  uninstaller, and refuse to publish unless every signature is valid. This
+  removes the "Windows protected your PC" warning. See `docs/CODE-SIGNING.md`.
+
+### Changed
+- The build's GitHub actions moved to Node 24 versions.
+
 ## 1.0.1
 
 Bug-fix and go-live release. Existing databases are upgraded automatically on

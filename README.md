@@ -91,8 +91,12 @@ Get-FileHash .\BusinessPOS-Setup.exe -Algorithm SHA256
 Run the installer and accept the licence. Choose to install for all users or only
 for yourself, and optionally create a desktop shortcut.
 
-> **Windows SmartScreen** may say "Windows protected your PC" because the installer
-> is not code-signed. Click **More info → Run anyway**.
+> **"Windows protected your PC"?** This is Microsoft SmartScreen; it appears because
+> the installer is not yet code-signed. To install without it, right-click
+> `BusinessPOS-Setup.exe` → **Properties** → tick **Unblock** → **OK**, then run it.
+> Or click **More info → Run anyway**. Once BusinessPOS is installed, the warning
+> doesn't appear again. See [docs/CODE-SIGNING.md](docs/CODE-SIGNING.md) for the
+> permanent fix.
 
 ### 3. First-time setup
 
@@ -252,7 +256,7 @@ folder:
 - **One computer:** SQLite on a single PC, one signed-in user at a time. There is no
   multi-counter network mode or cloud sync.
 - **Backups are not encrypted.** Keep copies somewhere secure.
-- **Unsigned installer:** Windows SmartScreen may warn on first run.
+- **Unsigned installer (for now):** SmartScreen warns when the installer is run. Releases are signed automatically once a code-signing certificate is added; see [docs/CODE-SIGNING.md](docs/CODE-SIGNING.md).
 - **Hardware:** scanners must use keyboard (HID) mode. Printing uses standard
   Windows printer drivers. Specific printer and scanner models have not been
   certified; check yours with the acceptance test.
@@ -375,9 +379,13 @@ Every push runs [`.github/workflows/build.yml`](.github/workflows/build.yml):
 
 The workflow checks that the tag matches `APP_VERSION` (when started manually, the
 tag is taken from `APP_VERSION`), builds and verifies the installer, and only then
-publishes a GitHub Release. The release notes come from the
-changelog, and the installer and checksum are attached. Installers are never
-committed to the repository.
+publishes a GitHub Release. The release notes come from the changelog, and the
+installer and checksum are attached. Installers are never committed to the
+repository.
+
+When the SSL.com eSigner secrets are configured, release builds are also
+code-signed, and every signature is verified before publishing
+([docs/CODE-SIGNING.md](docs/CODE-SIGNING.md)).
 
 </details>
 
