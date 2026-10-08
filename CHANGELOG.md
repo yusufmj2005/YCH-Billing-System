@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.0.2
+
+Publisher and signing update. No database changes; installing over 1.0.1 keeps all data.
 
 ### Added
 - **Automatic code signing for releases.** Once SSL.com eSigner secrets are added
@@ -10,6 +12,7 @@
 
 ### Changed
 - The build's GitHub actions moved to Node 24 versions.
+- The licence's copyright holder is now **Mohammed Yusuf J**.
 - The installer's publisher (shown in Windows *Apps & features*) is now **Mohammed Yusuf J**. The program's file properties (company and copyright) show the same name.
 
 ## 1.0.1

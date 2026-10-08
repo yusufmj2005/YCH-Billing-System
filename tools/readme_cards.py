@@ -74,7 +74,7 @@ PANELS = {
              "Fast GST billing, accurate stock, returns that add up and reports that agree. "
              "Fully offline on one PC."),
             ("purple", "target", "Currently",
-             "v1.0.1 is out: 162 automated tests, an install-tested Windows installer, CSV "
+             "v1.0.2 is out: 162 automated tests, an install-tested Windows installer, CSV "
              "import and off-site backups."),
         ],
     },

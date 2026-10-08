@@ -5,7 +5,7 @@ also contains the open-source components below. Each one is licensed to you
 under its own licence, and nothing in the BusinessPOS licence restricts the
 rights those licences grant.
 
-| Component | Version in 1.0.1 | Licence | Project |
+| Component | Version in 1.0.2 | Licence | Project |
 |---|---|---|---|
 | Python runtime | 3.12 | Python Software Foundation License | https://www.python.org |
 | Qt for Python (PySide6, shiboken6) and the Qt libraries | 6.11.2 | GNU LGPL v3 | https://www.qt.io/qt-for-python |

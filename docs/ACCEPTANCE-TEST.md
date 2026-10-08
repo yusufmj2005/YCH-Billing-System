@@ -19,7 +19,7 @@ covers that.
 |---|---|
 | Tester | |
 | Date | |
-| BusinessPOS version (shown on the sign-in screen) | 1.0.1 |
+| BusinessPOS version (shown on the sign-in screen) | 1.0.2 |
 | PC / printer / scanner | |
 
 ---

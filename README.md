@@ -9,7 +9,7 @@
 Billing · GST invoices · Stock · Purchases · Returns · Reports · Staff · Backups
 
 [![Test & build installer](https://github.com/yusufmj2005/YCH-Billing-System/actions/workflows/build.yml/badge.svg)](https://github.com/yusufmj2005/YCH-Billing-System/actions/workflows/build.yml)
-![Version](https://img.shields.io/badge/version-1.0.1-2563eb)
+![Version](https://img.shields.io/badge/version-1.0.2-2563eb)
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20(64--bit)-0f172a)
 ![Licence](https://img.shields.io/badge/licence-proprietary-6b7280)
 
@@ -23,7 +23,7 @@ Billing · GST invoices · Stock · Purchases · Returns · Reports · Staff · 
 <p align="center"><img src="docs/images/pos.png" alt="POS / Billing screen" width="900"></p>
 
 <p align="center"><img src="docs/images/readme-about.svg" width="100%"
-alt="About BusinessPOS. Built for: retail shops in India, made for a yarn and crochet store (yarn, hooks, needles, kits and handmade goods). Focus: fast GST billing, accurate stock, returns that add up and reports that agree, fully offline on one PC. Currently: v1.0.1 is out with 162 automated tests, an install-tested Windows installer, CSV import and off-site backups."></p>
+alt="About BusinessPOS. Built for: retail shops in India, made for a yarn and crochet store (yarn, hooks, needles, kits and handmade goods). Focus: fast GST billing, accurate stock, returns that add up and reports that agree, fully offline on one PC. Currently: v1.0.2 is out with 162 automated tests, an install-tested Windows installer, CSV import and off-site backups."></p>
 
 BusinessPOS is a desktop application that runs the day-to-day work of a retail
 shop. It was built for a shop selling yarn, crochet hooks, knitting needles,
@@ -391,7 +391,7 @@ code-signed, and every signature is verified before publishing
 
 ## Licence
 
-BusinessPOS is **proprietary software**. Copyright © 2026 yusufmj2005. All rights
+BusinessPOS is **proprietary software**. Copyright © 2026 Mohammed Yusuf J. All rights
 reserved. See [LICENSE](LICENSE).
 
 It includes open-source components (Qt / PySide6, SQLAlchemy, ReportLab, bcrypt,

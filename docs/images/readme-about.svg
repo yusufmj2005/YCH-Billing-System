@@ -55,7 +55,7 @@
 <g transform="translate(839.3 170) scale(1)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></g>
 <text x="891.3" y="189.0" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Currently</text>
 <text font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#cbd5e1" fill-opacity="0.92">
-<tspan x="827.3" y="240">v1.0.1 is out: 162 automated tests, an</tspan>
+<tspan x="827.3" y="240">v1.0.2 is out: 162 automated tests, an</tspan>
 <tspan x="827.3" y="263">install-tested Windows installer, CSV</tspan>
 <tspan x="827.3" y="286">import and off-site backups.</tspan>
 </text>
