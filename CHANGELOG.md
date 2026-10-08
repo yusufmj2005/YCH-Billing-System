@@ -10,6 +10,7 @@
 
 ### Changed
 - The build's GitHub actions moved to Node 24 versions.
+- The installer's publisher (shown in Windows *Apps & features*) is now **Mohammed Yusuf J**. The program's file properties (company and copyright) show the same name.
 
 ## 1.0.1
 

@@ -19,7 +19,7 @@
 #endif
 ; Publisher shown in "Apps & features". Override: ISCC /DMyAppPublisher="Your Company"
 #ifndef MyAppPublisher
-  #define MyAppPublisher "yusufmj2005"
+  #define MyAppPublisher "Mohammed Yusuf J"
 #endif
 #define MyAppExeName "BusinessPOS.exe"
 #define MyAppMutex "BusinessPOS_SingleInstance_Mutex"
